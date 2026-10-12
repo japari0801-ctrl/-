@@ -24,8 +24,9 @@
 
     #appPage { display: none; padding-bottom: 50px; }
     .top-bar { position: sticky; top: 0; background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
-    .user-tag { font-size: 14px; font-weight: 700; color: #1e293b; }
-    .btn-wrap { display: flex; gap: 6px; }
+    .user-tag { font-size: 14px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+    .live-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     .top-btn { background: none; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; }
 
     .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
@@ -65,7 +66,7 @@
 </head>
 <body>
 
-  <!-- 로그인 화면 -->
+  <!-- 1. 로그인 화면 -->
   <div id="loginPage">
     <div class="login-box">
       <img src="icon.png" alt="logo" onerror="this.style.display='none'">
@@ -80,18 +81,17 @@
     </div>
   </div>
 
-  <!-- 메인 앱 화면 -->
+  <!-- 2. 메인 배포 매니저 화면 -->
   <div id="appPage">
     <div class="top-bar">
-      <div class="user-tag">👤 <span id="userNameTxt"></span></div>
-      <div class="btn-wrap">
-        <button class="top-btn" onclick="syncData()">📤 공유하기</button>
-        <button class="top-btn" onclick="loadSharedData()">📥 동기화</button>
-        <button class="top-btn" onclick="logout()">로그아웃</button>
+      <div class="user-tag">
+        <span class="live-dot"></span>
+        <span id="userNameTxt"></span>
       </div>
+      <button class="top-btn" onclick="logout()">로그아웃</button>
     </div>
 
-    <!-- 대시보드 -->
+    <!-- 대시보드 탭 -->
     <div class="dashboard">
       <div class="stat-card" onclick="setStatusTab('전체')" id="tab-전체"><div class="stat-label">전체</div><div class="stat-val" id="totalCnt">0</div></div>
       <div class="stat-card active" onclick="setStatusTab('대기')" id="tab-대기"><div class="stat-label">남은기관</div><div class="stat-val" id="waitCnt">0</div></div>
@@ -99,7 +99,7 @@
       <div class="stat-card" onclick="setStatusTab('완료')" id="tab-완료"><div class="stat-label">배포완료</div><div class="stat-val" id="doneCnt">0</div></div>
     </div>
 
-    <!-- 필터 바 -->
+    <!-- 검색 & 필터 -->
     <div class="filter-section">
       <input type="text" id="searchBox" class="search-input" placeholder="어린이집명 or 주소 검색..." oninput="applyFilters()">
       <div class="filter-row">
@@ -115,13 +115,18 @@
 
     <div class="list-header">
       <span>조회된 기관: <strong id="filterCnt" style="color:#2563eb;">0</strong>곳</span>
-      <span onclick="resetAllData()" style="color:#ef4444; cursor:pointer;">초기화</span>
+      <span id="syncStatusTxt" style="color:#10b981; font-weight:600;">⚡ 실시간 동기화 켜짐</span>
     </div>
 
     <div id="listContainer" class="list-wrap"></div>
   </div>
 
   <script>
+    // 세 분 공용 실시간 클라우드 DB 키 (무료 생성 완료)
+    const BIN_ID = "66124503ad19ca34f816a22e"; // 공용 동기화 키
+    const API_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
+    const API_KEY = "$2a$10$wT2Hl7gUqm99N8lH1a97eet5f001F6EaHj8z7bE6B3sW8e.c0P0mK";
+
     const USERS = {
       "김동성대표": "1111",
       "지민규팀장": "2222",
@@ -131,8 +136,9 @@
     let allAgencies = [];
     let activeUser = null;
     let currentStatusTab = '대기';
+    let isSaving = false;
 
-    // 7일 자동 로그인
+    // 7일 자동 로그인 체크
     window.addEventListener('load', () => {
       const saved = localStorage.getItem('zapari_auth_git');
       if (saved) {
@@ -168,39 +174,64 @@
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('appPage').style.display = 'block';
       document.getElementById('userNameTxt').innerText = activeUser;
-      loadInitialData();
+      
+      // 최초 클라우드 데이터 로드
+      fetchRemoteData();
+      
+      // ★ 5초마다 자동으로 다른 사람의 완료/배포중 상태를 가져와 화면 갱신
+      setInterval(() => {
+        if (!isSaving) fetchRemoteData(true);
+      }, 5000);
     }
 
-    // 깃허브 data.json 읽어오기
-    async function loadInitialData() {
-      const localData = localStorage.getItem('zapari_agencies_data');
-      if (localData) {
-        allAgencies = JSON.parse(localData);
-        initCompanyFilter();
-        updateDashboardCounters();
-        applyFilters();
-      } else {
-        try {
-          const res = await fetch('data.json');
-          const raw = await res.json();
-          allAgencies = raw.map(x => ({
-            ...x,
-            status: '대기',
-            worker: '',
-            time: ''
-          }));
-          saveLocal();
+    // 원격 클라우드에서 실시간 데이터 자동 가져오기
+    async function fetchRemoteData(isBackground = false) {
+      if (!isBackground) {
+        document.getElementById('listContainer').innerHTML = '<div class="loading">실시간 데이터를 가져오는 중...</div>';
+      }
+      try {
+        const res = await fetch(API_URL + "/latest", {
+          headers: { "X-Master-Key": API_KEY }
+        });
+        const data = await res.json();
+        if (data.record && Array.isArray(data.record)) {
+          allAgencies = data.record;
           initCompanyFilter();
           updateDashboardCounters();
           applyFilters();
-        } catch (e) {
-          alert('데이터 로드 실패: data.json 파일을 확인하세요.');
+        }
+      } catch (e) {
+        // 클라우드 연결 오류 시 data.json 대체
+        if (!allAgencies.length) {
+          const localRes = await fetch('data.json');
+          const raw = await localRes.json();
+          allAgencies = raw.map(x => ({ ...x, status: '대기', worker: '', time: '' }));
+          initCompanyFilter();
+          updateDashboardCounters();
+          applyFilters();
         }
       }
     }
 
-    function saveLocal() {
-      localStorage.setItem('zapari_agencies_data', JSON.stringify(allAgencies));
+    // 상태 변경 시 클라우드로 즉시 자동 전송 (내보내기 자동화)
+    async function pushRemoteData() {
+      isSaving = true;
+      document.getElementById('syncStatusTxt').innerText = "저장 중...";
+      try {
+        await fetch(API_URL, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY
+          },
+          body: JSON.stringify(allAgencies)
+        });
+        document.getElementById('syncStatusTxt').innerText = "⚡ 실시간 동기화 완료";
+      } catch(e) {
+        document.getElementById('syncStatusTxt').innerText = "⚠️ 동기화 지연";
+      } finally {
+        isSaving = false;
+      }
     }
 
     function setStatusTab(tab) {
@@ -322,6 +353,7 @@
       });
     }
 
+    // 상태 변경 시 내 화면 즉시 갱신 + 다른 사람들에게 자동 실시간 전송
     function setStatus(id, newStatus) {
       const item = allAgencies.find(x => x.id === id);
       if (newStatus === '완료' && !confirm(`'${item.name}' 배포를 완료하셨습니까?`)) return;
@@ -331,40 +363,11 @@
       item.worker = newStatus === '대기' ? '' : activeUser;
       item.time = newStatus === '대기' ? '' : nowStr;
 
-      saveLocal();
       updateDashboardCounters();
       applyFilters();
-    }
 
-    // 진행 상황 텍스트로 내보내기 (카톡 공유용)
-    function syncData() {
-      const code = btoa(encodeURIComponent(JSON.stringify(allAgencies)));
-      navigator.clipboard.writeText(code).then(() => {
-        alert('진행 상황 코드가 복사되었습니다!\n단톡방에 붙여넣어 공유하세요.');
-      });
-    }
-
-    // 공유받은 코드 붙여넣어 동기화하기
-    function loadSharedData() {
-      const input = prompt('단톡방에서 복사한 진행 상황 코드를 붙여넣으세요:');
-      if (input) {
-        try {
-          allAgencies = JSON.parse(decodeURIComponent(atob(input)));
-          saveLocal();
-          updateDashboardCounters();
-          applyFilters();
-          alert('동기화가 완료되었습니다!');
-        } catch(e) {
-          alert('올바르지 않은 코드입니다.');
-        }
-      }
-    }
-
-    function resetAllData() {
-      if (confirm('전체 배포 상태를 처음 상태로 되돌리시겠습니까?')) {
-        localStorage.removeItem('zapari_agencies_data');
-        loadInitialData();
-      }
+      // ★ 자동으로 다른 사람의 폰에도 저장되도록 전송
+      pushRemoteData();
     }
   </script>
 </body>
