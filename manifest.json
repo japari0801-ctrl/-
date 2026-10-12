@@ -1,0 +1,16 @@
+{
+  "name": "홍보물 배포 매니저",
+  "short_name": "홍보물배포",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1b2649",
+  "theme_color": "#1b2649",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
