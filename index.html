@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>홍보물 배포 매니저</title>
+  <title>홍보물 배포 매니저 - Agentic AI</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" type="image/png" href="icon.png">
@@ -12,64 +12,83 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
     body { margin: 0; background: #f8fafc; color: #1e293b; }
     
+    /* 1. 로그인 */
     #loginPage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
     .login-box { background: white; width: 100%; max-width: 340px; padding: 32px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center; }
     .login-box img { width: 72px; height: 72px; border-radius: 16px; margin-bottom: 12px; object-fit: cover; }
     .login-box h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; color: #0f172a; }
     .login-box p { margin: 0 0 24px; font-size: 13px; color: #64748b; }
     .input-field { width: 100%; padding: 13px 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; }
-    .input-field:focus { border-color: #2563eb; }
     .login-btn { width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
-    .login-btn:active { background: #1d4ed8; }
 
+    /* 2. 메인 앱 */
     #appPage { display: none; padding-bottom: 50px; }
     .top-bar { position: sticky; top: 0; background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
     .user-tag { font-size: 14px; font-weight: 700; color: #1e293b; }
     .top-btn { background: none; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; }
 
-    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 12px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+    /* AI 에이전트 브리핑 카드 */
+    .ai-agent-card { margin: 12px 16px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; border-radius: 16px; padding: 16px; box-shadow: 0 8px 20px rgba(15,23,42,0.15); border: 1.5px solid #38bdf8; }
+    .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .ai-badge { background: #38bdf8; color: #0f172a; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+    .ai-msg { font-size: 13px; line-height: 1.55; color: #f1f5f9; margin-bottom: 12px; word-break: keep-all; }
+    .ai-btn-row { display: flex; gap: 8px; }
+    .ai-action-btn { flex: 1; padding: 10px 0; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; }
+    .ai-map-btn { flex: 1; padding: 10px 0; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
+    /* 대시보드 */
+    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
     .stat-card { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 8px 4px; text-align: center; cursor: pointer; }
     .stat-card.active { border-color: #2563eb; background: #eff6ff; }
     .stat-label { font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
     .stat-val { font-size: 16px; font-weight: 800; color: #0f172a; }
     .stat-card.active .stat-val { color: #2563eb; }
 
+    /* 검색 및 컨트롤 바 */
     .filter-section { padding: 12px 16px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
     .search-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; }
     .filter-row { display: flex; gap: 8px; }
     .select-box { flex: 1; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; background: white; outline: none; }
+    .gps-btn { padding: 8px 12px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 
-    .list-header { padding: 10px 16px; font-size: 12px; color: #64748b; display: flex; justify-content: space-between; align-items: center; }
-    .list-wrap { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
-    .card { background: white; padding: 16px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .card-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    /* 폴더(아코디언) 그룹 스타일 */
+    .group-wrap { margin-bottom: 10px; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; background: white; }
+    .group-header { padding: 14px 16px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; user-select: none; }
+    .group-wrap.open .group-header { border-bottom-color: #e2e8f0; background: #f1f5f9; }
+    .group-title { font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .group-badge { font-size: 12px; font-weight: 700; color: #2563eb; }
+    .group-map-btn { font-size: 11px; padding: 3px 8px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; color: #475569; text-decoration: none; font-weight: 600; margin-right: 8px; }
+    .group-body { display: none; padding: 12px 14px; flex-direction: column; gap: 10px; }
+    .group-wrap.open .group-body { display: flex; }
+
+    /* 개별 카드 */
+    .card { background: white; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .badges { display: flex; gap: 4px; }
     .badge-company { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #475569; font-weight: 600; }
     .badge-status { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
     .status-wait { background: #f1f5f9; color: #64748b; }
     .status-ing { background: #ffedd5; color: #ea580c; }
     .status-done { background: #dcfce7; color: #16a34a; }
-
-    .card-address { font-size: 13px; color: #475569; margin-bottom: 8px; line-height: 1.4; word-break: keep-all; }
-    .card-info { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
-    .card-info span { color: #0284c7; font-weight: 700; }
+    .card-address { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.4; }
+    .card-info { font-size: 11px; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .dist-tag { color: #2563eb; font-weight: 700; }
 
     .card-actions { display: flex; gap: 6px; }
-    .btn-map { flex: 1; padding: 10px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; color: #334155; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
-    .btn-ing { flex: 1.2; padding: 10px 0; background: #f97316; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; }
-    .btn-done { flex: 1.2; padding: 10px 0; background: #10b981; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; }
-    .btn-cancel { flex: 0.8; padding: 10px 0; background: #ef4444; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-map { flex: 1; padding: 8px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .btn-ing { flex: 1.2; padding: 8px 0; background: #f97316; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-done { flex: 1.2; padding: 8px 0; background: #10b981; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-cancel { flex: 0.8; padding: 8px 0; background: #ef4444; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- 로그인 화면 -->
+  <!-- 1. 로그인 화면 -->
   <div id="loginPage">
     <div class="login-box">
       <img src="icon.png" alt="logo" onerror="this.style.display='none'">
-      <h2>홍보물 배포 시스템</h2>
-      <p>배포 담당자 로그인 (7일 자동유지)</p>
-      
+      <h2>홍보물 배포 매니저</h2>
+      <p>AI 동선 플래너 탑재 (7일 자동유지)</p>
       <form onsubmit="event.preventDefault(); doLogin();">
         <input type="text" id="userId" class="input-field" placeholder="아이디 (예: 김동성대표)" autocomplete="off">
         <input type="password" id="userPw" class="input-field" placeholder="비밀번호" autocomplete="off">
@@ -78,41 +97,58 @@
     </div>
   </div>
 
-  <!-- 메인 앱 화면 -->
+  <!-- 2. 메인 배포 앱 화면 -->
   <div id="appPage">
     <div class="top-bar">
       <div class="user-tag">👤 <span id="userNameTxt"></span></div>
       <button class="top-btn" onclick="logout()">로그아웃</button>
     </div>
 
-    <!-- 대시보드 -->
+    <!-- AI 에이전트 브리핑 카드 -->
+    <div class="ai-agent-card" id="aiCard">
+      <div class="ai-header">
+        <span class="ai-badge">🤖 AGENTIC AI 비서</span>
+        <span style="font-size: 11px; color:#94a3b8;" id="aiTimeTag">실시간 분석</span>
+      </div>
+      <div class="ai-msg" id="aiMsgTxt">
+        현재 위치와 배포 현황을 분석 중입니다... 📍 위치 권한을 켜주시면 10분 내 연속 순회 최적 코스를 브리핑해 드립니다.
+      </div>
+      <div class="ai-btn-row">
+        <button class="ai-action-btn" onclick="runAiAgentPlanner()">⚡ 최적 코스 추천받기</button>
+        <a id="aiCourseMapBtn" href="#" target="_blank" class="ai-map-btn" style="display:none;">🗺️ 추천 코스 지도</a>
+      </div>
+    </div>
+
+    <!-- 대시보드 탭 -->
     <div class="dashboard">
       <div class="stat-card" onclick="setStatusTab('전체')" id="tab-전체"><div class="stat-label">전체</div><div class="stat-val" id="totalCnt">0</div></div>
       <div class="stat-card active" onclick="setStatusTab('대기')" id="tab-대기"><div class="stat-label">남은기관</div><div class="stat-val" id="waitCnt">0</div></div>
       <div class="stat-card" onclick="setStatusTab('배포중')" id="tab-배포중"><div class="stat-label">배포중</div><div class="stat-val" id="ingCnt">0</div></div>
-      <div class="stat-card" onclick="setStatusTab('완료')" id="tab-완료"><div class="stat-label">배포완료</div><div class="stat-val" id="doneCnt">0</div></div>
+      <div class="stat-card" onclick="setStatusTab('완료')" id="tab-완료"><div class="stat-label">완료</div><div class="stat-val" id="doneCnt">0</div></div>
     </div>
 
-    <!-- 필터 바 -->
+    <!-- 필터 및 GPS 정렬 컨트롤 -->
     <div class="filter-section">
-      <input type="text" id="searchBox" class="search-input" placeholder="어린이집명 or 주소 검색..." oninput="applyFilters()">
+      <input type="text" id="searchBox" class="search-input" placeholder="어린이집명 or 동네/주소 검색..." oninput="applyFilters()">
       <div class="filter-row">
         <select id="companySelect" class="select-box" onchange="applyFilters()"><option value="전체">체육업체: 전체</option></select>
         <select id="sortSelect" class="select-box" onchange="applyFilters()">
+          <option value="district">📂 구역별 묶어보기</option>
+          <option value="dist_asc">📍 내 위치 가까운 순</option>
           <option value="cur_desc">현원수 많은순 ↓</option>
-          <option value="cur_asc">현원수 적은순 ↑</option>
-          <option value="cap_desc">정원수 많은순 ↓</option>
           <option value="name_asc">어린이집 이름순</option>
         </select>
+        <button class="gps-btn" onclick="requestGps()">📍 내 위치</button>
       </div>
     </div>
 
-    <div class="list-header">
+    <div style="padding: 10px 16px; font-size: 12px; color: #64748b; display: flex; justify-content: space-between;">
       <span>조회된 기관: <strong id="filterCnt" style="color:#2563eb;">0</strong>곳</span>
-      <span onclick="resetDefaultData()" style="color:#ef4444; cursor:pointer;">전체 초기화 ↺</span>
+      <span onclick="resetAllData()" style="color:#ef4444; cursor:pointer;">데이터 초기화 ↺</span>
     </div>
 
-    <div id="listContainer" class="list-wrap"></div>
+    <!-- 기관 목록 컨테이너 -->
+    <div id="listContainer" style="padding: 0 16px;"></div>
   </div>
 
   <script>
@@ -125,12 +161,64 @@
     let allAgencies = [];
     let activeUser = null;
     let currentStatusTab = '대기';
+    let userLocation = null; // { lat, lng }
 
-    // 화면 진입 시 로그인 체크 및 엑셀 361개 데이터 로드
+    // 권역 중심 좌표 딕셔너리
+    const DISTRICT_COORDS = {
+      '노형동': [33.484, 126.478], '연동': [33.490, 126.495], '이도·도남': [33.498, 126.535],
+      '일도동': [33.510, 126.540], '아라·첨단': [33.465, 126.550], '삼양·도련': [33.520, 126.585],
+      '화북·봉개': [33.515, 126.570], '외도·도평': [33.492, 126.435], '용담동': [33.512, 126.510],
+      '삼도동': [33.508, 126.522], '오라동': [33.492, 126.510], '이호·도두': [33.505, 126.460],
+      '건입동': [33.518, 126.535], '애월읍': [33.462, 126.330], '한림읍': [33.415, 126.265],
+      '한경면': [33.350, 126.185], '조천읍': [33.535, 126.635], '구좌읍': [33.525, 126.850],
+      '서호·혁신도시': [33.255, 126.515], '동홍동': [33.260, 126.575], '서홍동': [33.258, 126.555],
+      '서귀포 구도심': [33.250, 126.560], '중문동': [33.252, 126.425], '대정읍': [33.225, 126.250],
+      '남원읍': [33.280, 126.715], '성산읍': [33.385, 126.880], '안덕면': [33.255, 126.345],
+      '표선면': [33.325, 126.830], '토평·효돈': [33.265, 126.610], '강정·법환': [33.240, 126.505],
+      '우도면': [33.505, 126.955], '추자면': [33.960, 126.295], '기타 지역': [33.490, 126.500]
+    };
+
+    function parseDistrict(addr) {
+      if (!addr) return '기타 지역';
+      const eupMyeons = ['조천읍', '애월읍', '구좌읍', '한림읍', '한경면', '추자면', '우도면', '대정읍', '남원읍', '성산읍', '안덕면', '표선면'];
+      for (let em of eupMyeons) { if (addr.includes(em)) return em; }
+      if (['노형', '원노형', '다랑곶', '수덕', '진군', '광평'].some(k => addr.includes(k))) return '노형동';
+      if (['연동', '신대로', '삼무로', '도령로', '문연로', '국기'].some(k => addr.includes(k))) return '연동';
+      if (['이도', '구남', '남광', '독짓골'].some(k => addr.includes(k))) return '이도·도남';
+      if (['일도', '고마로', '삼성로', '태성'].some(k => addr.includes(k))) return '일도동';
+      if (['아라', '인다', '아란', '간월동', '영평', '첨단', '오등'].some(k => addr.includes(k))) return '아라·첨단';
+      if (['삼양', '도련', '화삼', '건주로', '설촌', '벌랑', '원당'].some(k => addr.includes(k))) return '삼양·도련';
+      if (['화북', '동화로', '진남', '거로', '황사평', '봉개', '번영로', '명림로'].some(k => addr.includes(k))) return '화북·봉개';
+      if (['외도', '도평', '내도', '우정로', '우령', '절물'].some(k => addr.includes(k))) return '외도·도평';
+      if (['용담', '용문', '용화', '성화'].some(k => addr.includes(k))) return '용담동';
+      if (['삼도', '남성로', '서사로', '서천', '관덕'].some(k => addr.includes(k))) return '삼도동';
+      if (['오라', '연오로', '사평', '월구'].some(k => addr.includes(k))) return '오라동';
+      if (['이호', '도두', '백포', '오일장'].some(k => addr.includes(k))) return '이호·도두';
+      if (addr.includes('건입')) return '건입동';
+      if (addr.includes('동홍')) return '동홍동';
+      if (addr.includes('서홍')) return '서홍동';
+      if (['중문', '상예', '하예', '대포'].some(k => addr.includes(k))) return '중문동';
+      if (['서호', '서호남', '서호중앙', '대청', '신동로', '신서로'].some(k => addr.includes(k))) return '서호·혁신도시';
+      if (['강정', '법환', '호근', '막동산'].some(k => addr.includes(k))) return '강정·법환';
+      if (['서귀동', '태평로', '중앙로'].some(k => addr.includes(k))) return '서귀포 구도심';
+      if (['토평', '보목', '효돈', '신효', '하효'].some(k => addr.includes(k))) return '토평·효돈';
+      return '기타 지역';
+    }
+
+    // 두 좌표 간 거리 계산 (km)
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+
     window.addEventListener('load', async () => {
-      await loadAgencies();
-
-      const saved = localStorage.getItem('zapari_auth_final');
+      await initAgencies();
+      const saved = localStorage.getItem('zapari_auth_ai');
       if (saved) {
         try {
           const auth = JSON.parse(saved);
@@ -142,21 +230,27 @@
       }
     });
 
-    // data.json 우선 로드 (실패 시에도 내장된 캐시 유지)
-    async function loadAgencies() {
-      const stored = localStorage.getItem('zapari_list_all_361');
+    async function initAgencies() {
+      const stored = localStorage.getItem('zapari_data_agentic');
       if (stored && JSON.parse(stored).length > 300) {
         allAgencies = JSON.parse(stored);
       } else {
         try {
           const res = await fetch('data.json');
           const raw = await res.json();
-          allAgencies = raw.map(x => ({
-            ...x,
-            status: '대기',
-            worker: '',
-            time: ''
-          }));
+          allAgencies = raw.map(x => {
+            const dist = parseDistrict(x.address);
+            const coords = DISTRICT_COORDS[dist] || [33.490, 126.500];
+            return {
+              ...x,
+              district: dist,
+              lat: coords[0],
+              lng: coords[1],
+              status: '대기',
+              worker: '',
+              time: ''
+            };
+          });
           saveAgencies();
         } catch(e) {
           console.warn('data.json 로드 대기 중');
@@ -165,26 +259,15 @@
     }
 
     function saveAgencies() {
-      localStorage.setItem('zapari_list_all_361', JSON.stringify(allAgencies));
-    }
-
-    async function resetDefaultData() {
-      if (confirm('전체 361곳의 배포 상태를 초기화하시겠습니까?')) {
-        localStorage.removeItem('zapari_list_all_361');
-        await loadAgencies();
-        initCompanyFilter();
-        updateDashboardCounters();
-        applyFilters();
-      }
+      localStorage.setItem('zapari_data_agentic', JSON.stringify(allAgencies));
     }
 
     function doLogin() {
       const id = document.getElementById('userId').value.replace(/\s+/g, '');
       const pw = document.getElementById('userPw').value.replace(/\s+/g, '');
-
       if (USERS[id] && USERS[id] === pw) {
         activeUser = id;
-        localStorage.setItem('zapari_auth_final', JSON.stringify({ user: id, time: Date.now() }));
+        localStorage.setItem('zapari_auth_ai', JSON.stringify({ user: id, time: Date.now() }));
         enterApp();
       } else {
         alert('아이디 또는 비밀번호가 올바르지 않습니다.');
@@ -192,7 +275,7 @@
     }
 
     function logout() {
-      localStorage.removeItem('zapari_auth_final');
+      localStorage.removeItem('zapari_auth_ai');
       location.reload();
     }
 
@@ -200,9 +283,9 @@
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('appPage').style.display = 'block';
       document.getElementById('userNameTxt').innerText = activeUser;
-      
       initCompanyFilter();
       updateDashboardCounters();
+      requestGps();
       applyFilters();
     }
 
@@ -231,14 +314,81 @@
       const select = document.getElementById('companySelect');
       const companies = new Set();
       allAgencies.forEach(item => {
-        if (item.company && item.company !== '-' && item.company.trim() !== '') {
+        if (item.company && item.company !== '-') {
           item.company.split(' ').forEach(c => companies.add(c.trim()));
         }
       });
       select.innerHTML = '<option value="전체">체육업체: 전체</option>';
-      Array.from(companies).sort().forEach(c => {
-        select.innerHTML += `<option value="${c}">${c}</option>`;
+      Array.from(companies).sort().forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function requestGps() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            runAiAgentPlanner();
+            applyFilters();
+          },
+          err => {
+            // 위치 미허용 시 제주도청(신제주) 기본값
+            userLocation = { lat: 33.489, lng: 126.498 };
+            runAiAgentPlanner();
+          },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      } else {
+        userLocation = { lat: 33.489, lng: 126.498 };
+        runAiAgentPlanner();
+      }
+    }
+
+    // ★ [에이전틱 AI 플래너 엔진]
+    function runAiAgentPlanner() {
+      if (!userLocation) return;
+
+      // 1. 상태 인지 & 가지치기 (대기 상태이면서, 다른 담당자가 배포중이지 않은 곳만 선별)
+      const candidates = allAgencies.filter(x => x.status === '대기');
+
+      if (candidates.length === 0) {
+        document.getElementById('aiMsgTxt').innerHTML = "🎉 <strong>모든 기관 배포가 완료되었습니다!</strong> 수고 많으셨습니다.";
+        document.getElementById('aiCourseMapBtn').style.display = "none";
+        return;
+      }
+
+      // 2. 현재 내 위치 기준 거리 및 점수 산정
+      candidates.forEach(x => {
+        x._dist = getDistanceKm(userLocation.lat, userLocation.lng, x.lat, x.lng);
+        // AI 스코어: 가까울수록(+), 현원수가 클수록(+), 자파리 계약원일수록 우선순위 가산
+        let priority = (x.cur || 0) * 0.1;
+        if (x.company && x.company.includes('자파리')) priority += 5;
+        x._score = (50 - Math.min(x._dist, 40)) + priority;
       });
+
+      // 가장 가까운 권역의 1번 후보 선정
+      candidates.sort((a, b) => b._score - a._score);
+      const startNode = candidates[0];
+
+      // 3. 1번 후보 주변에서 연속 순회 가능한 3~4곳 묶음 클러스터링(TSP)
+      const nearbyCluster = candidates
+        .filter(x => x.district === startNode.district || getDistanceKm(startNode.lat, startNode.lng, x.lat, x.lng) < 3.5)
+        .slice(0, 4);
+
+      // 4. 자연어 스마트 브리핑 생성
+      const namesList = nearbyCluster.map((c, i) => `<strong>${i+1}.${c.name}</strong>(${c.cur}명)`).join(' ➔ ');
+      const estTime = Math.max(15, nearbyCluster.length * 10);
+
+      document.getElementById('aiTimeTag').innerText = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + " 브리핑";
+      document.getElementById('aiMsgTxt').innerHTML = `
+        ${activeUser}님, 현재 <strong>${startNode.district}</strong> 반경 내 순회 코스입니다!<br>
+        📍 추천 순서: ${namesList}<br>
+        ⏱️ 예상 순회 소요시간: 약 ${estTime}분 (총 ${nearbyCluster.length}곳 밀집 코스)
+      `;
+
+      // 지도 모아보기 링크
+      const mapBtn = document.getElementById('aiCourseMapBtn');
+      mapBtn.style.display = "flex";
+      mapBtn.href = "https://map.kakao.com/link/search/" + encodeURIComponent(startNode.address);
     }
 
     function applyFilters() {
@@ -248,81 +398,150 @@
 
       let filtered = allAgencies.filter(item => {
         if (currentStatusTab !== '전체' && item.status !== currentStatusTab) return false;
-        if (!item.name.toLowerCase().includes(q) && !item.address.toLowerCase().includes(q)) return false;
+        if (!item.name.toLowerCase().includes(q) && !item.address.toLowerCase().includes(q) && !item.district.includes(q)) return false;
         if (comp !== '전체' && (!item.company || !item.company.includes(comp))) return false;
         return true;
       });
 
-      filtered.sort((a, b) => {
-        if (sort === 'cur_desc') return b.cur - a.cur;
-        if (sort === 'cur_asc') return a.cur - b.cur;
-        if (sort === 'cap_desc') return b.cap - a.cap;
-        return a.name.localeCompare(b.name);
-      });
+      // 거리 계산
+      if (userLocation) {
+        filtered.forEach(x => {
+          x.calcDist = getDistanceKm(userLocation.lat, userLocation.lng, x.lat, x.lng);
+        });
+      }
 
-      render(filtered);
+      // 정렬 처리
+      if (sort === 'dist_asc' && userLocation) {
+        filtered.sort((a, b) => (a.calcDist || 999) - (b.calcDist || 999));
+        renderFlatList(filtered);
+      } else if (sort === 'cur_desc') {
+        filtered.sort((a, b) => b.cur - a.cur);
+        renderFlatList(filtered);
+      } else if (sort === 'name_asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        renderFlatList(filtered);
+      } else {
+        // 기본값: B형 구역별 폴더 아코디언 묶음
+        renderGroupedList(filtered);
+      }
+
+      document.getElementById('filterCnt').innerText = filtered.length;
     }
 
-    function render(list) {
+    // B형: 구역별 아코디언 폴더 렌더링
+    function renderGroupedList(list) {
       const container = document.getElementById('listContainer');
-      document.getElementById('filterCnt').innerText = list.length;
       container.innerHTML = '';
 
       if (!list.length) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">해당 조건의 기관이 없습니다.</div>';
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">조건에 맞는 기관이 없습니다.</div>';
         return;
       }
 
+      const groups = {};
       list.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        const mapLink = "https://map.kakao.com/link/search/" + encodeURIComponent(item.address);
+        if (!groups[item.district]) groups[item.district] = [];
+        groups[item.district].push(item);
+      });
 
-        let badge = '<span class="badge-status status-wait">대기</span>';
-        if (item.status === '배포중') badge = `<span class="badge-status status-ing">⏳ ${item.worker} 배포중</span>`;
-        else if (item.status === '완료') badge = `<span class="badge-status status-done">✓ ${item.worker} 완료</span>`;
+      // 구역명 가나다순 정렬
+      Object.keys(groups).sort().forEach(distName => {
+        const items = groups[distName];
+        const waitCount = items.filter(x => x.status === '대기').length;
+        const groupEl = document.createElement('div');
+        groupEl.className = 'group-wrap';
 
-        let btns = '';
-        if (item.status === '대기') {
-          btns = `
-            <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
-            <button class="btn-ing" onclick="setStatus(${item.id}, '배포중')">배포중 선택</button>
-            <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 완료</button>
-          `;
-        } else if (item.status === '배포중') {
-          if (item.worker === activeUser) {
-            btns = `
-              <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
-              <button class="btn-cancel" onclick="setStatus(${item.id}, '대기')">취소</button>
-              <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 배포완료</button>
-            `;
-          } else {
-            btns = `
-              <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
-              <div style="flex:2;text-align:center;font-size:12px;color:#ea580c;font-weight:700;padding:10px 0;background:#fff7ed;border-radius:8px;">${item.worker}님이 이동중</div>
-            `;
-          }
-        } else {
-          btns = `
-            <a href="${mapLink}" target="_blank" class="btn-map" style="flex:1;">지도</a>
-            <div style="flex:2;text-align:center;font-size:12px;color:#16a34a;font-weight:700;padding:10px 0;">배포 완료 (${item.time})</div>
-          `;
-        }
+        // C형: 동네 지도 모아보기 링크
+        const firstAddr = items[0] ? encodeURIComponent(items[0].address) : '';
+        const mapAllUrl = `https://map.kakao.com/link/search/${encodeURIComponent(distName + ' 어린이집')}`;
 
-        card.innerHTML = `
-          <div class="card-title">
-            <span>${item.name}</span>
-            <div class="badges">
-              <span class="badge-company">${item.company || '기타'}</span>
-              ${badge}
+        groupEl.innerHTML = `
+          <div class="group-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="group-title">📂 ${distName}</span>
+            <div style="display:flex; align-items:center;">
+              <a href="${mapAllUrl}" target="_blank" class="group-map-btn" onclick="event.stopPropagation()">🗺️ ${distName} 지도</a>
+              <span class="group-badge">${waitCount}곳 남음 / 총 ${items.length}곳</span>
             </div>
           </div>
-          <div class="card-address">📍 ${item.address}</div>
-          <div class="card-info">정원: ${item.cap}명 | 현원: <span>${item.cur}명</span></div>
-          <div class="card-actions">${btns}</div>
+          <div class="group-body" id="group-body-${distName}"></div>
         `;
-        container.appendChild(card);
+
+        const bodyEl = groupEl.querySelector(`#group-body-${CSS.escape(distName)}`);
+        items.forEach(item => {
+          bodyEl.appendChild(createCardEl(item));
+        });
+
+        container.appendChild(groupEl);
       });
+    }
+
+    // 플랫 리스트 렌더링 (거리순 / 현원순)
+    function renderFlatList(list) {
+      const container = document.getElementById('listContainer');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">조건에 맞는 기관이 없습니다.</div>';
+        return;
+      }
+      list.forEach(item => {
+        container.appendChild(createCardEl(item));
+      });
+    }
+
+    function createCardEl(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const mapLink = "https://map.kakao.com/link/search/" + encodeURIComponent(item.address);
+
+      let badge = '<span class="badge-status status-wait">대기</span>';
+      if (item.status === '배포중') badge = `<span class="badge-status status-ing">⏳ ${item.worker} 배포중</span>`;
+      else if (item.status === '완료') badge = `<span class="badge-status status-done">✓ ${item.worker} 완료</span>`;
+
+      const distStr = item.calcDist ? `<span class="dist-tag">📍 약 ${item.calcDist.toFixed(1)}km</span>` : '';
+
+      let btns = '';
+      if (item.status === '대기') {
+        btns = `
+          <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+          <button class="btn-ing" onclick="setStatus(${item.id}, '배포중')">배포중</button>
+          <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 완료</button>
+        `;
+      } else if (item.status === '배포중') {
+        if (item.worker === activeUser) {
+          btns = `
+            <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+            <button class="btn-cancel" onclick="setStatus(${item.id}, '대기')">취소</button>
+            <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 배포완료</button>
+          `;
+        } else {
+          btns = `
+            <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+            <div style="flex:2;text-align:center;font-size:12px;color:#ea580c;font-weight:700;padding:8px 0;background:#fff7ed;border-radius:6px;">${item.worker}님이 이동중</div>
+          `;
+        }
+      } else {
+        btns = `
+          <a href="${mapLink}" target="_blank" class="btn-map" style="flex:1;">지도</a>
+          <div style="flex:2;text-align:center;font-size:12px;color:#16a34a;font-weight:700;padding:8px 0;">배포 완료 (${item.time})</div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="card-title">
+          <span>${item.name}</span>
+          <div class="badges">
+            <span class="badge-company">${item.company || '기타'}</span>
+            ${badge}
+          </div>
+        </div>
+        <div class="card-address">📍 ${item.address}</div>
+        <div class="card-info">
+          <span>정원: ${item.cap}명 | 현원: <strong>${item.cur}명</strong></span>
+          ${distStr}
+        </div>
+        <div class="card-actions">${btns}</div>
+      `;
+      return card;
     }
 
     function setStatus(id, newStatus) {
@@ -337,6 +556,18 @@
       saveAgencies();
       updateDashboardCounters();
       applyFilters();
+      runAiAgentPlanner();
+    }
+
+    function resetAllData() {
+      if (confirm('전체 361개 기관의 배포 상태를 처음 대기 상태로 되돌리시겠습니까?')) {
+        localStorage.removeItem('zapari_data_agentic');
+        initAgencies().then(() => {
+          updateDashboardCounters();
+          applyFilters();
+          runAiAgentPlanner();
+        });
+      }
     }
   </script>
 </body>
