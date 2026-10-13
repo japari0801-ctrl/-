@@ -11,6 +11,7 @@
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
     body { margin: 0; background: #f8fafc; color: #1e293b; }
+    
     #loginPage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
     .login-box { background: white; width: 100%; max-width: 340px; padding: 32px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center; }
     .login-box img { width: 72px; height: 72px; border-radius: 16px; margin-bottom: 12px; object-fit: cover; }
@@ -18,10 +19,12 @@
     .login-box p { margin: 0 0 24px; font-size: 13px; color: #64748b; }
     .input-field { width: 100%; padding: 13px 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; }
     .login-btn { width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+
     #appPage { display: none; padding-bottom: 50px; }
     .top-bar { position: sticky; top: 0; background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
     .user-tag { font-size: 14px; font-weight: 700; color: #1e293b; }
     .top-btn { background: none; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; }
+
     .ai-agent-card { margin: 12px 16px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border-radius: 16px; padding: 16px; box-shadow: 0 8px 20px rgba(15,23,42,0.15); border: 1.5px solid #38bdf8; }
     .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .ai-badge { background: #38bdf8; color: #0f172a; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
@@ -29,17 +32,20 @@
     .ai-btn-row { display: flex; gap: 8px; }
     .ai-action-btn { flex: 1.2; padding: 10px 0; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; }
     .ai-map-btn { flex: 1; padding: 10px 0; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
     .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
     .stat-card { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 8px 4px; text-align: center; cursor: pointer; }
     .stat-card.active { border-color: #2563eb; background: #eff6ff; }
     .stat-label { font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
     .stat-val { font-size: 16px; font-weight: 800; color: #0f172a; }
     .stat-card.active .stat-val { color: #2563eb; }
+
     .filter-section { padding: 12px 16px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
     .search-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; }
     .filter-row { display: flex; gap: 8px; }
     .select-box { flex: 1; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; background: white; outline: none; }
     .gps-btn { padding: 8px 12px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
     .group-wrap { margin-bottom: 10px; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; background: white; }
     .group-header { padding: 14px 16px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; user-select: none; }
     .group-wrap.open .group-header { border-bottom-color: #e2e8f0; background: #f1f5f9; }
@@ -48,6 +54,7 @@
     .group-map-btn { font-size: 11px; padding: 3px 8px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; color: #475569; text-decoration: none; font-weight: 600; margin-right: 8px; }
     .group-body { display: none; padding: 12px 14px; flex-direction: column; gap: 10px; }
     .group-wrap.open .group-body { display: flex; }
+
     .card { background: white; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
     .card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .badges { display: flex; gap: 4px; }
@@ -59,6 +66,7 @@
     .card-address { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.4; }
     .card-info { font-size: 11px; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
     .dist-tag { color: #dc2626; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+
     .card-actions { display: flex; gap: 6px; }
     .btn-map { flex: 1; padding: 8px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
     .btn-ing { flex: 1.2; padding: 8px 0; background: #f97316; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
@@ -67,11 +75,12 @@
   </style>
 </head>
 <body>
+
   <div id="loginPage">
     <div class="login-box">
       <img src="icon.png" alt="logo" onerror="this.style.display='none'">
       <h2>홍보물 배포 매니저</h2>
-      <p>361개 정밀 좌표 일체형 탑재</p>
+      <p>실제 주소 기반 GPS 플래너 (7일 유지)</p>
       <form onsubmit="event.preventDefault(); doLogin();">
         <input type="text" id="userId" class="input-field" placeholder="아이디 (예: 강석영센터장)" autocomplete="off">
         <input type="password" id="userPw" class="input-field" placeholder="비밀번호" autocomplete="off">
@@ -86,18 +95,22 @@
       <button class="top-btn" onclick="logout()">로그아웃</button>
     </div>
 
+    <!-- AI 에이전트 브리핑 -->
     <div class="ai-agent-card" id="aiCard">
       <div class="ai-header">
         <span class="ai-badge">🤖 AGENTIC AI 플래너</span>
         <span style="font-size: 11px; color:#94a3b8;" id="aiTimeTag">실시간 분석</span>
       </div>
-      <div class="ai-msg" id="aiMsgTxt">GPS 기반 실제 거리를 계산하고 있습니다...</div>
+      <div class="ai-msg" id="aiMsgTxt">
+        GPS 기반 실제 직선거리를 계산하고 있습니다...
+      </div>
       <div class="ai-btn-row">
         <button class="ai-action-btn" onclick="runAiAgentPlanner()">⚡ 동선 재계산</button>
         <a id="aiCourseMapBtn" href="#" target="_blank" class="ai-map-btn" style="display:none;">🗺️ 최적코스 지도열기</a>
       </div>
     </div>
 
+    <!-- 대시보드 -->
     <div class="dashboard">
       <div class="stat-card" onclick="setStatusTab('전체')" id="tab-전체"><div class="stat-label">전체</div><div class="stat-val" id="totalCnt">0</div></div>
       <div class="stat-card active" onclick="setStatusTab('대기')" id="tab-대기"><div class="stat-label">남은기관</div><div class="stat-val" id="waitCnt">0</div></div>
@@ -105,6 +118,7 @@
       <div class="stat-card" onclick="setStatusTab('완료')" id="tab-완료"><div class="stat-label">완료</div><div class="stat-val" id="doneCnt">0</div></div>
     </div>
 
+    <!-- 필터 및 검색 바 -->
     <div class="filter-section">
       <input type="text" id="searchBox" class="search-input" placeholder="어린이집명 or 동네/주소 검색..." oninput="applyFilters()">
       <div class="filter-row">
@@ -130,66 +144,23 @@
   <script>
     const USERS = { "김동성대표": "1111", "지민규팀장": "2222", "강석영센터장": "3333" };
 
-    // ★ 361개 어린이집 실제 지도 정밀 위경도 좌표 완전 내장 ★
     let allAgencies = [];
     let activeUser = null;
     let currentStatusTab = '대기';
     let userLocation = null;
 
     function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const nLat1 = Number(lat1), nLon1 = Number(lon1);
+      const nLat2 = Number(lat2), nLon2 = Number(lon2);
+      if (isNaN(nLat1) || isNaN(nLon1) || isNaN(nLat2) || isNaN(nLon2)) return 999;
+      
       const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const dLat = (nLat2 - nLat1) * Math.PI / 180;
+      const dLon = (nLon2 - nLon1) * Math.PI / 180;
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.cos(nLat1 * Math.PI / 180) * Math.cos(nLat2 * Math.PI / 180) *
                 Math.sin(dLon/2) * Math.sin(dLon/2);
       return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-    }
-
-    // 주소 기반 실제 정밀 좌표 테이블
-    const GEO_MAP = {
-      '도남': [33.4965, 126.5265], '독짓골': [33.4975, 126.5310], '청사로': [33.4990, 126.5270],
-      '이도이동': [33.4985, 126.5360], '이도2동': [33.4985, 126.5360], '구남': [33.4940, 126.5330], '남광': [33.4920, 126.5380],
-      '이도일동': [33.5075, 126.5295], '동광로': [33.5080, 126.5370],
-      '일도이동': [33.5090, 126.5415], '일도2동': [33.5090, 126.5415], '고마로': [33.5110, 126.5390], '삼성로': [33.5095, 126.5320], '태성': [33.5140, 126.5440],
-      '사평': [33.4880, 126.5090], '연오로': [33.4890, 126.5050], '정실': [33.4750, 126.5020], '오라': [33.4925, 126.5102],
-      '용담': [33.5115, 126.5100], '용문': [33.5120, 126.5090], '용화': [33.5080, 126.5030],
-      '삼도': [33.5080, 126.5210], '서사로': [33.5060, 126.5180], '남성로': [33.5030, 126.5220],
-      '연동': [33.4905, 126.4952], '신대로': [33.4910, 126.4930], '삼무로': [33.4890, 126.4910], '도령로': [33.4880, 126.4880], '문연로': [33.4890, 126.4980],
-      '노형': [33.4840, 126.4780], '다랑곶': [33.4860, 126.4750], '수덕': [33.4850, 126.4720], '진군': [33.4810, 126.4790], '광평': [33.4780, 126.4730],
-      '아라': [33.4680, 126.5480], '인다': [33.4710, 126.5460], '첨단': [33.4520, 126.5710], '영평': [33.4600, 126.5650], '오등': [33.4670, 126.5220],
-      '화북': [33.5150, 126.5700], '동화로': [33.5200, 126.5680], '봉개': [33.5010, 126.5940], '번영로': [33.4980, 126.6020],
-      '삼양': [33.5200, 126.5860], '도련': [33.5160, 126.5820], '건주로': [33.5210, 126.5880], '화삼': [33.5170, 126.5810],
-      '외도': [33.4910, 126.4320], '우정로': [33.4920, 126.4350], '우령': [33.4900, 126.4300], '도평': [33.4850, 126.4420], '내도': [33.4950, 126.4400],
-      '이호': [33.4980, 126.4560], '도두': [33.5030, 126.4620], '건입': [33.5180, 126.5350],
-      '조천': [33.5350, 126.6350], '신촌': [33.5310, 126.6120], '함덕': [33.5410, 126.6680],
-      '애월': [33.4625, 126.3300], '하귀': [33.4810, 126.4080], '구엄': [33.4790, 126.3750], '곽지': [33.4510, 126.3120],
-      '한림': [33.4150, 126.2650], '금능': [33.3950, 126.2350], '옹포': [33.4080, 126.2580], '귀덕': [33.4350, 126.2950],
-      '한경': [33.3500, 126.1850], '고산': [33.2980, 126.1680], '신창': [33.3420, 126.1750],
-      '구좌': [33.5250, 126.8500], '세화': [33.5230, 126.8550], '김녕': [33.5550, 126.7450], '하도': [33.5180, 126.8950],
-      '대정': [33.2250, 126.2500], '모슬포': [33.2210, 126.2480], '에듀시티': [33.2850, 126.2820], '영어마을': [33.2850, 126.2820],
-      '남원': [33.2800, 126.7150], '위미': [33.2720, 126.6620], '신례': [33.2850, 126.6450], '태흥': [33.2850, 126.7450],
-      '성산': [33.3850, 126.8800], '고성': [33.3750, 126.8920],
-      '안덕': [33.2550, 126.3450], '화순': [33.2420, 126.3350], '신화역사': [33.3050, 126.3180],
-      '표선': [33.3250, 126.8300], '세화로': [33.3250, 126.8300],
-      '중문': [33.2510, 126.4260], '대포': [33.2420, 126.4420], '상예': [33.2620, 126.3980],
-      '서호': [33.2550, 126.5150], '신서로': [33.2520, 126.5120], '신동로': [33.2560, 126.5180], '대청로': [33.2540, 126.5160], '서호남로': [33.2530, 126.5140],
-      '강정': [33.2420, 126.4950], '말질로': [33.2430, 126.4920], '법환': [33.2400, 126.5100],
-      '동홍': [33.2610, 126.5750], '서홍': [33.2580, 126.5550], '홍중로': [33.2560, 126.5580],
-      '서귀동': [33.2500, 126.5600], '태평로': [33.2480, 126.5650], '토평': [33.2680, 126.5950], '효돈': [33.2620, 126.6200], '신효': [33.2630, 126.6150], '보목': [33.2450, 126.6050]
-    };
-
-    function resolveCoords(item) {
-      const addr = item.address || '';
-      const isSgp = item.region === '서귀포시' || addr.includes('서귀포');
-      const sortedKeys = Object.keys(GEO_MAP).sort((a,b) => b.length - a.length);
-
-      for (let k of sortedKeys) {
-        if (addr.includes(k)) {
-          return GEO_MAP[k];
-        }
-      }
-      return isSgp ? [33.2500, 126.5600] : [33.4980, 126.5300];
     }
 
     window.addEventListener('load', async () => {
@@ -206,6 +177,7 @@
       }
     });
 
+    // data.json의 실제 주소 위경도 좌표를 그대로 읽고, 기존 localStorage 상태(배포완료/배포중)를 100% 보존 복원
     async function loadAgenciesData() {
       const stored = localStorage.getItem('zapari_data_agentic');
       let storedList = null;
@@ -213,17 +185,14 @@
         try { storedList = JSON.parse(stored); } catch(e){}
       }
 
-      // data.json 또는 내장 데이터 동기화
       try {
-        const res = await fetch('data.json');
+        const res = await fetch('data.json?v=' + Date.now());
         const raw = await res.json();
         allAgencies = raw.map(x => {
-          const coords = resolveCoords(x);
           const item = {
             ...x,
-            lat: Number(x.lat || coords[0]),
-            lng: Number(x.lng || coords[1]),
-            district: x.district || (x.address.includes('서귀포') ? '서귀포' : '제주'),
+            lat: Number(x.lat || 33.4980),
+            lng: Number(x.lng || 126.5300),
             status: '대기',
             worker: '',
             time: ''
@@ -241,11 +210,6 @@
       } catch(e) {
         if (storedList) {
           allAgencies = storedList;
-          allAgencies.forEach(x => {
-            const coords = resolveCoords(x);
-            x.lat = coords[0];
-            x.lng = coords[1];
-          });
         }
       }
       saveAgencies();
@@ -320,6 +284,7 @@
         navigator.geolocation.getCurrentPosition(
           pos => updateGpsPos(pos),
           err => {
+            // 위치 권한 차단 시 도남동(자파리스포츠센터) 기준 기본값
             userLocation = { lat: 33.4965, lng: 126.5265 };
             document.getElementById('gpsAccuracyTxt').innerText = "기본 위치(도남동) 기준";
             runAiAgentPlanner();
@@ -502,7 +467,7 @@
       else if (item.status === '완료') badge = `<span class="badge-status status-done">✓ ${item.worker} 완료</span>`;
 
       let distStr = '';
-      if (item.calcDist !== undefined) {
+      if (item.calcDist !== undefined && !isNaN(item.calcDist)) {
         if (item.calcDist < 1.0) {
           distStr = `<span class="dist-tag">📍 약 ${Math.round(item.calcDist * 1000)}m</span>`;
         } else {
