@@ -2,28 +2,26 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>카카오 핀포인트 정밀 좌표 추출기 (JS버전)</title>
+  <title>카카오 REST API 정석 추출기</title>
   <style>
     body { font-family: -apple-system, sans-serif; background: #f8fafc; display: flex; flex-direction: column; align-items: center; padding: 50px 20px; }
-    .box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; }
+    .box { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 550px; width: 100%; text-align: center; }
     h2 { margin-top: 0; color: #0f172a; }
     p { color: #64748b; font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
-    input { width: 100%; padding: 14px; margin-bottom: 20px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 15px; box-sizing: border-box; outline: none; }
     button { width: 100%; padding: 16px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
     button:disabled { background: #94a3b8; cursor: not-allowed; }
     #progress-wrap { width: 100%; background: #e2e8f0; border-radius: 10px; margin-top: 20px; overflow: hidden; display: none; }
     #progress-bar { height: 20px; background: #10b981; width: 0%; transition: width 0.1s; }
     #status { margin-top: 10px; font-size: 14px; font-weight: bold; color: #2563eb; }
-    .log-box { margin-top: 15px; text-align: left; font-size: 12px; color: #64748b; height: 100px; overflow-y: auto; background: #f1f5f9; padding: 10px; border-radius: 8px; }
+    .log-box { margin-top: 15px; text-align: left; font-size: 12px; color: #64748b; height: 150px; overflow-y: auto; background: #f1f5f9; padding: 10px; border-radius: 8px; line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="box">
-    <h2>🎯 건물 핀포인트 정밀 좌표 굽기</h2>
-    <p>1m 오차 없는 진짜 위치 데이터를 뽑아냅니다.<br>(※ 카카오 개발자 플랫폼에 <b>file://</b> 등록 필수!)</p>
+    <h2>🎯 1m 오차 없는 REST API 추출기</h2>
+    <p>브라우저 보안과 무관하게 카카오 서버와 직접 통신하여<br>361곳의 정밀 좌표를 즉시 다운로드합니다.</p>
     
-    <input type="text" id="jsKey" placeholder="카카오 JavaScript 키를 붙여넣으세요">
-    <button id="startBtn" onclick="loadKakaoMap()">🔥 361곳 핀포인트 변환 시작!</button>
+    <button id="startBtn" onclick="startProcessing()">🔥 361곳 핀포인트 변환 시작!</button>
     
     <div id="progress-wrap"><div id="progress-bar"></div></div>
     <div id="status"></div>
@@ -31,6 +29,9 @@
   </div>
 
   <script>
+    // 센터장님의 카카오 REST API 키
+    const REST_API_KEY = "0a0f28e298d5d35a0cec4f44792354d3";
+
     const rawData = [
   {"id": 1, "region": "제주시", "name": "프라임국제어린이집", "company": "자파리 꼬망세", "cap": 210, "cur": 202, "address": "제주특별자치도 제주시 건주로2길 27-8 (삼양이동)", "district": "삼양·도련"},
   {"id": 2, "region": "제주시", "name": "에덴숲어린이집", "company": "제일", "cap": 180, "cur": 160, "address": "제주특별자치도 제주시 연오로 113-10 (오라동)", "district": "오라동"},
@@ -159,7 +160,7 @@
   {"id": 125, "region": "서귀포시", "name": "무지개영아전담어린이집", "company": "-", "cap": 24, "cur": 11, "address": "제주특별자치도 서귀포시 안덕면 사계남로84번길 13", "district": "안덕면"},
   {"id": 126, "region": "제주시", "name": "해선현어린이집", "company": "자파리", "cap": 59, "cur": 49, "address": "제주특별자치도 제주시 내도3길 4  -5 (외도동)", "district": "외도·도평"},
   {"id": 127, "region": "제주시", "name": "공립봉개LH어린이집", "company": "꾸러기", "cap": 53, "cur": 48, "address": "제주특별자치도 제주시 번영로 528 공립봉개LH어린이집", "district": "화북·봉개"},
-  {"id": 128, "region": "제주시", "name": "별님어린이집", "company": "꾸러기", "cap": 99, "cur": 47, "address": "제주특별자치도 제주시 황사평6길 92-7 (화북동)", "district": "화북·봉개"},
+  {"id": 128, "region": "제주시", "name": "별님어린이집", "company": "꾸러기", "cap": 99, "cur": 47, "address": "제주특별자치도 제주시 황사평6길 92-7 (화북동)", "district": "오라동"},
   {"id": 129, "region": "제주시", "name": "제주지방해양경찰청어린이집", "company": "자파리", "cap": 66, "cur": 47, "address": "제주특별자치도 제주시 구산로 65 (아라일동)", "district": "아라·첨단"},
   {"id": 130, "region": "제주시", "name": "뽀뽀뽀어린이집", "company": "자파리", "cap": 81, "cur": 46, "address": "제주특별자치도 제주시 원당로3길 5 (삼양일동)", "district": "삼양·도련"},
   {"id": 131, "region": "서귀포시", "name": "법환어린이집", "company": "-", "cap": 104, "cur": 86, "address": "제주특별자치도 서귀포시 법환로71번길 10 (강정동)", "district": "강정동"},
@@ -344,7 +345,7 @@
   {"id": 310, "region": "제주시", "name": "제주삼화8차 부영 사랑으로어린이집", "company": "꾸러기", "cap": 19, "cur": 14, "address": "제주특별자치도 제주시 화삼로 89 (삼양동)", "district": "삼양·도련"},
   {"id": 311, "region": "서귀포시", "name": "탐라해군어린이집", "company": "-", "cap": 49, "cur": 11, "address": "제주특별자치도 서귀포시 이어도로 642", "district": "서귀포 구도심"},
   {"id": 312, "region": "서귀포시", "name": "태흥어린이집", "company": "-", "cap": 74, "cur": 45, "address": "제주특별자치도 서귀포시 남원읍 태신로 48", "district": "남원읍"},
-  {"id": 313, "region": "제주시", "name": "해달별어린이집", "company": "프렌즈", "cap": 21, "cur": 14, "address": "제주특별자치도 제주시 서사로 177-5 (오라일동2453-6)", "district": "삼도동"},
+  {"id": 313, "region": "제주시", "name": "해달별어린이집", "company": "프렌즈", "cap": 21, "cur": 14, "address": "제주특별자치도 제주시 서사로 177-5 (오라일동2453-6)", "district": "오라동"},
   {"id": 314, "region": "서귀포시", "name": "토티어린이집", "company": "-", "cap": 11, "cur": 3, "address": "제주특별자치도 서귀포시 동홍중앙로 10", "district": "동홍동"},
   {"id": 315, "region": "제주시", "name": "꼬마별어린이집", "company": "-", "cap": 19, "cur": 13, "address": "제주특별자치도 제주시 신설로9길 6 한양스타빌 2 102호", "district": "이도동"},
   {"id": 316, "region": "제주시", "name": "꼬마스쿨어린이집", "company": "프렌즈", "cap": 20, "cur": 13, "address": "제주특별자치도 제주시 연수로2길 28  -5 (일도이동)", "district": "일도동"},
@@ -395,36 +396,21 @@
   {"id": 361, "region": "제주시", "name": "소예어린이집", "company": "-", "cap": 20, "cur": 1, "address": "제주특별자치도 제주시 태성중1길 7 (일도이동)", "district": "일도동"}
 ];
 
-    let geocoder = null;
-
-    function loadKakaoMap() {
-      const jsKey = document.getElementById('jsKey').value.trim();
-      const btn = document.getElementById('startBtn');
-      if (!jsKey) {
-        alert("JavaScript 키를 입력해주세요!");
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerText = "지도 엔진 불러오는 중...";
-
-      // 🔥 [수정된 부분] 맨 앞에 https: 를 추가했습니다! 🔥
-      const script = document.createElement('script');
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${jsKey}&libraries=services&autoload=false`;
-      
-      script.onload = () => {
-        kakao.maps.load(() => {
-          geocoder = new kakao.maps.services.Geocoder();
-          startProcessing();
+    async function getKakaoCoords(query) {
+      const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}`;
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: { 'Authorization': `KakaoAK ${REST_API_KEY}` }
         });
-      };
-      
-      script.onerror = () => {
-        alert("오류: 카카오 플랫폼 설정에 'file://'이 등록되어 있는지 확인해주세요.");
-        btn.disabled = false;
-        btn.innerText = "🔥 361곳 핀포인트 변환 시작!";
-      };
-      document.head.appendChild(script);
+        const data = await response.json();
+        if (data.documents && data.documents.length > 0) {
+          return { lat: Number(data.documents[0].y), lng: Number(data.documents[0].x) };
+        }
+      } catch (e) {
+        console.error("카카오 호출 중 에러 발생:", e);
+      }
+      return null;
     }
 
     async function startProcessing() {
@@ -434,63 +420,56 @@
       const statusDiv = document.getElementById('status');
       const logBox = document.getElementById('logBox');
 
+      btn.disabled = true;
       progressWrap.style.display = 'block';
       logBox.style.display = 'block';
-      btn.innerText = "주소 변환 진행 중...";
+      btn.innerText = "카카오 서버와 직접 통신 중...";
 
       let successCount = 0;
       let failCount = 0;
 
-      const searchAddress = (query) => {
-        return new Promise((resolve) => {
-          geocoder.addressSearch(query, (result, status) => {
-            if (status === kakao.maps.services.Status.OK) {
-              resolve({ lat: result[0].y, lng: result[0].x });
-            } else {
-              resolve(null);
-            }
-          });
-        });
-      };
-
       for (let i = 0; i < rawData.length; i++) {
         let item = rawData[i];
         
-        let query = item.address.split('(')[0].replace(/지하/g, '').replace(/1층/g, '').replace(/상가/g, '').trim();
+        // 1차 주소 정제 (괄호, 상가, 층수, 동호수 제거)
+        let query = item.address.split('(')[0];
+        query = query.replace(/(지하|1층|2층|3층|상가|관리동|경찰청|정부제주|주민복지관|아파트|키즈클럽).*/g, '');
+        query = query.replace(/\s\d+동/g, '').replace(/\s\d+호/g, '').trim();
         
-        let coords = await searchAddress(query);
+        let coords = await getKakaoCoords(query);
         
-        if (coords) {
-          item.lat = Number(coords.lat);
-          item.lng = Number(coords.lng);
-          successCount++;
-          logBox.innerHTML = `[성공] ${item.name} (${query})<br>` + logBox.innerHTML;
-        } else {
-          let shortQuery = query.split(',')[0].trim();
-          coords = await searchAddress(shortQuery);
-          if (coords) {
-            item.lat = Number(coords.lat);
-            item.lng = Number(coords.lng);
-            successCount++;
-            logBox.innerHTML = `[성공] ${item.name} (${shortQuery})<br>` + logBox.innerHTML;
-          } else {
-            failCount++;
-            logBox.innerHTML = `<span style="color:red">[실패/기존유지] ${item.name} (${query})</span><br>` + logBox.innerHTML;
+        // 2차 주소 정제 (실패할 경우 'OO로 OO' 까지만 잘라서 검색)
+        if (!coords) {
+          let match = query.match(/^(.*?[길|로]\s*\d+(?:-\d+)?)/);
+          if (match) {
+            let shortQuery = match[1].trim();
+            coords = await getKakaoCoords(shortQuery);
+            if (coords) query = shortQuery;
           }
+        }
+
+        if (coords) {
+          item.lat = coords.lat;
+          item.lng = coords.lng;
+          successCount++;
+          logBox.innerHTML = `<span style="color:#10b981; font-weight:bold;">[성공]</span> ${item.name} (${query})<br>` + logBox.innerHTML;
+        } else {
+          failCount++;
+          logBox.innerHTML = `<span style="color:#ef4444; font-weight:bold;">[실패-기존유지]</span> ${item.name} (${item.address})<br>` + logBox.innerHTML;
         }
 
         let percent = Math.round(((i + 1) / rawData.length) * 100);
         progressBar.style.width = percent + '%';
         statusDiv.innerText = `${i + 1} / 361 완료 (${percent}%)`;
         
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // 카카오 서버 무리 가지 않게 0.1초 쉬기
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       statusDiv.innerText = `🎉 변환 완료! (성공: ${successCount}, 실패: ${failCount}) 파일이 다운로드됩니다.`;
       statusDiv.style.color = "#10b981";
-      
       downloadData(rawData);
-      btn.innerText = "완벽하게 완료되었습니다!";
+      btn.innerText = "모든 변환이 완벽하게 끝났습니다!";
     }
 
     function downloadData(data) {
