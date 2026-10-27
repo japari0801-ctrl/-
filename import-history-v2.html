@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>자파리 홍보물 배포기록 안전 이전 v2</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  :root{color-scheme:light} *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;line-height:1.6;margin:0;background:#f4f7fb;color:#14213d}
+  main{max-width:770px;background:#fff;margin:22px auto;padding:24px;border-radius:18px;box-shadow:0 10px 24px #14213d11}
+  h1{font-size:23px;letter-spacing:-.02em;line-height:1.35;margin:0 0 8px}h2{font-size:17px;margin:30px 0 10px}
+  p{margin:8px 0 13px}a{color:#1558b4} .muted{color:#617083;font-size:14px}
+  .notice{padding:12px 14px;border-radius:10px;background:#eaf3ff;font-size:14px;margin:12px 0}
+  .check{padding:10px 12px;background:#f6f8fc;border-radius:9px;margin:14px 0}
+  textarea{display:block;width:100%;min-height:176px;border:1px solid #b8c5d9;border-radius:10px;padding:13px;font:12px/1.55 ui-monospace,Consolas,monospace;resize:vertical}
+  button{background:#165ac7;color:white;border:0;border-radius:10px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer}
+  button:disabled{background:#a8b3c4;cursor:not-allowed}.secondary{background:#eef3fc;color:#154a9b}
+  .row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.state{font-size:14px;background:#f4f6fa;border-radius:10px;padding:12px 14px;white-space:pre-wrap;word-break:break-word}
+  .state.good{color:#08643c;background:#e9f8f0}.state.bad{color:#9b2431;background:#fff0f1}
+  pre{background:#f3f6fa;border-radius:10px;padding:12px;white-space:pre-wrap;overflow:auto;max-height:290px;font-size:12px}
+  input[type=checkbox]{width:16px;height:16px;vertical-align:middle}label{font-size:14px}
+  .stats{display:flex;gap:10px;margin:16px 0}.stat{flex:1;background:#f5f7fa;border-radius:10px;padding:10px;text-align:center}.stat b{display:block;font-size:25px}.stat small{color:#617083}
+  @media(max-width:650px){main{margin:8px;padding:19px}.stat b{font-size:21px}}
+</style>
+</head>
+<body><main>
+<h1>자파리 기존 배포기록 안전 이전 v2</h1>
+<p>Firebase API 키를 <strong>이미지에서 옮겨 적지 않고</strong> 공식 콘솔의 원본 코드를 직접 붙여넣어 연결합니다.</p>
+<div class="stats"><div class="stat"><small>전체</small><b>361</b></div><div class="stat"><small>기존 완료</small><b>36</b></div><div class="stat"><small>기존 대기</small><b>325</b></div></div>
+<div class="notice"><b>기존 기록 보호:</b> Firestore에 이미 존재하는 문서는 덮어쓰지 않습니다. 대기 325건은 업로드하지 않으며, 기존 완료 36건만 등록합니다. 기존 휴대폰 기록은 변경하지 않습니다.</div>
+<h2>1. Firebase에서 원본 설정 복사</h2>
+<p>Firebase 콘솔 → <b>프로젝트 설정</b> → <b>일반</b> → 아래쪽 <b>내 앱</b> → 자파리 웹앱 → <b>SDK 설정 및 구성 → 구성(Config)</b> 선택 → 오른쪽 복사 버튼을 누르세요.</p>
+<p class="muted">`const firebaseConfig = { ... };` 전체를 그대로 붙여넣습니다. npm 명령어나 `initializeApp` 부분은 있어도 무관합니다. 서비스 계정 비공개 키나 관리자 비밀번호는 붙여넣지 마세요.</p>
+<textarea id="raw" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="Firebase 콘솔에서 복사한 const firebaseConfig = { ... } 코드를 여기에 붙여넣으세요."></textarea>
+<div class="row"><button id="connect">원본 설정으로 Firebase 연결 확인</button><button class="secondary" disabled id="download">검증된 firebase-config.js 다운로드</button></div>
+<div id="state" class="state">설정을 붙여넣고 ‘연결 확인’을 눌러주세요. 이 페이지는 기존 firebase-config.js 파일을 읽지 않습니다.</div>
+<h2>2. 배포 완료 36건 이전</h2>
+<div class="check"><label><input id="consent" type="checkbox"> 기존 기록 36건을 확인했고 Firestore로 이전하는 데 동의합니다.</label></div>
+<div class="row"><button id="start" disabled>기존 완료 36건 이전 시작</button></div>
+<h2>3. 서버 확인 결과</h2>
+<pre id="log">연결 확인 대기</pre>
+<p class="muted">검증 결과가 '36 / 36건'이면 이전 완료입니다. 이후 GitHub에서 이 임시 페이지를 삭제하고, 다운로드한 설정 파일을 GitHub에 올려 기존 파일을 교체하세요. 정확한 배포 날짜는 원본 백업에 없으므로 기존 시각만 보존합니다.</p>
+</main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+'use strict';
+const RECORDS=[{"id":"1","name":"프라임국제어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:47"},{"id":"6","name":"요술배어린이집","status":"완료","worker":"강석영센터장","time":"오후 04:40"},{"id":"8","name":"부라보 어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:52"},{"id":"31","name":"근로복지공단제주어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:47"},{"id":"42","name":"요요어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:38"},{"id":"44","name":"참어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:04"},{"id":"46","name":"제주어린이집","status":"완료","worker":"강석영센터장","time":"오후 04:28"},{"id":"48","name":"공립삼도어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:32"},{"id":"82","name":"공립삼화휴먼시아어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:29"},{"id":"86","name":"키즈빌어린이집","status":"완료","worker":"강석영센터장","time":"오후 02:55"},{"id":"88","name":"전원어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:20"},{"id":"91","name":"피터팬어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:45"},{"id":"95","name":"제주시찌다어린이집","status":"완료","worker":"강석영센터장","time":"오후 04:03"},{"id":"100","name":"제주삼성어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:24"},{"id":"107","name":"제주경찰청 어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:50"},{"id":"112","name":"정부제주지방합동청사 청사랑어린이집","status":"완료","worker":"강석영센터장","time":"오후 04:10"},{"id":"132","name":"연세어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:09"},{"id":"143","name":"한마음 어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:06"},{"id":"145","name":"힘찬 어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:56"},{"id":"170","name":"제주시청직장어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:57"},{"id":"173","name":"아이숲어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:04"},{"id":"191","name":"파란나라 어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:57"},{"id":"192","name":"늘사랑어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:11"},{"id":"202","name":"꿈빛나무어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:15"},{"id":"203","name":"다인어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:19"},{"id":"211","name":"이도어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:23"},{"id":"233","name":"늘찬어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:31"},{"id":"239","name":"아이조아어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:36"},{"id":"246","name":"다올어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:29"},{"id":"255","name":"이든어린이집","status":"완료","worker":"강석영센터장","time":"오후 03:37"},{"id":"277","name":"삼화도담어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:42"},{"id":"288","name":"Kt cs 루키어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:25"},{"id":"313","name":"해달별어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:55"},{"id":"317","name":"꿈꾸는어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:41"},{"id":"335","name":"삼화lh까르르어린이집","status":"완료","worker":"강석영센터장","time":"오전 11:34"},{"id":"341","name":"해달별어린이집","status":"완료","worker":"강석영센터장","time":"오전 10:55"}];
+const el=id=>document.getElementById(id);
+const state=el('state'),log=el('log'),start=el('start'),consent=el('consent'),connect=el('connect'),download=el('download');
+let app=null,db=null,connectedCfg=null,busy=false,attempt=0;
+function status(msg,type=''){state.textContent=msg;state.className='state '+type}
+function addLog(s){log.textContent+='\n'+s;log.scrollTop=log.scrollHeight}
+function refresh(){start.disabled=busy||!db||!consent.checked;connect.disabled=busy;download.disabled=busy||!connectedCfg}
+consent.addEventListener('change',refresh);
+// Extract only named string values from the officially copied Firebase config; never eval user text.
+function parseFirebaseConfig(raw){
+  const out={};
+  for(const key of ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId']){
+    const re=new RegExp('(?:^|[\\s,{])(?:[\\"\\\']?)'+key+'(?:[\\"\\\']?)\\s*:\\s*([\\"\\\'])(.*?)\\1','m');
+    const m=raw.match(re);
+    if(!m||!m[2])throw new Error('Firebase 설정에서 '+key+' 항목을 찾지 못했습니다. ‘구성(Config)’ 코드를 전체 복사해 주세요.');
+    out[key]=m[2].trim();
+  }
+  if(out.projectId!=='japari-distribution-manager')throw new Error('프로젝트 ID가 다릅니다: '+out.projectId+' (필요: japari-distribution-manager)');
+  if(!out.apiKey.startsWith('AIza')||out.apiKey.length<30)throw new Error('복사된 API 키 형식을 확인해 주세요.');
+  return out;
+}
+function friendlyError(e,phase){
+  const code=e&&e.code||''; const msg=e&&e.message||String(e);
+  if(code.includes('api-key-not-valid')||msg.includes('api-key-not-valid')||code==='auth/invalid-api-key')return 'API 키를 Firebase에서 거부했습니다.\n원본 코드를 다시 복사했는데도 같으면 Google Cloud 콘솔의 API 키 사용 여부와 제한사항을 확인해야 합니다.\n오류: '+msg;
+  if(code==='auth/operation-not-allowed')return 'Firebase Authentication의 익명 로그인(Anonymous) 기능이 비활성화되어 있습니다.\n오류: '+msg;
+  if(code==='permission-denied'||msg.includes('Missing or insufficient permissions'))return '인증은 성공했지만 Firestore 규칙이 읽기를 거부했습니다. Firestore → 규칙을 확인해 주세요.\n오류: '+msg;
+  if(code==='auth/unauthorized-domain')return 'Firebase Authentication 승인 도메인을 확인해 주세요.\n오류: '+msg;
+  return phase+' 실패\n'+msg;
+}
+connect.addEventListener('click',async()=>{
+  if(busy)return;
+  let cfg;try{cfg=parseFirebaseConfig(el('raw').value)}catch(e){status(e.message,'bad');return}
+  busy=true;db=null;connectedCfg=null;refresh();log.textContent='연결 점검 중';
+  if(app){try{await app.delete()}catch(e){}app=null}
+  try{
+    if(typeof firebase==='undefined')throw Error('Firebase SDK 로딩 실패: 인터넷 연결을 확인해 주세요.');
+    app=firebase.initializeApp(cfg,'migration-check-'+(++attempt));
+    status('1/2 Firebase 익명 로그인 확인 중...');
+    await app.auth().signInAnonymously();
+    status('2/2 Firestore 서버 읽기 권한 확인 중...');
+    const firestore=app.firestore();
+    await firestore.collection('distribution_status').limit(1).get({source:'server'});
+    db=firestore;connectedCfg=cfg;
+    status('✅ Firebase 연결 성공! '+cfg.projectId+'\n이제 동의 체크 후 36건을 이전할 수 있습니다.','good');
+    log.textContent='기존 완료 36건 준비 완료';
+  }catch(e){status('⚠️ '+friendlyError(e,'연결'),'bad');log.textContent='서버에 기록을 쓰지 않았습니다.'}
+  busy=false;refresh();
+});
+download.addEventListener('click',()=>{
+  if(!connectedCfg)return;
+  const body='// Firebase 콘솔 원본을 직접 복사하여 검증한 설정입니다.\nwindow.ZAPARI_FIREBASE_CONFIG = '+JSON.stringify(connectedCfg,null,2)+';\n';
+  const blob=new Blob([body],{type:'text/javascript;charset=utf-8'});
+  const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='firebase-config.js';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);
+});
+start.addEventListener('click',async()=>{
+  if(busy||!db||!consent.checked)return;
+  busy=true;refresh();let added=0,exists=0,failed=0;log.textContent='이전 시작 (서버에 이미 있는 기록은 그대로 유지)...';
+  for(const x of RECORDS){
+    try{
+      const ref=db.collection('distribution_status').doc(x.id);
+      const outcome=await db.runTransaction(async tx=>{
+        const snap=await tx.get(ref);
+        if(snap.exists)return 'exists';
+        tx.set(ref,{status:x.status,worker:x.worker,time:x.time,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),migratedFrom:'android-localStorage-backup-2026-10-27',legacyTimeOnly:true});
+        const hist=db.collection('distribution_history').doc();
+        tx.set(hist,{agencyId:x.id,name:x.name,worker:x.worker,from:'대기',to:x.status,at:firebase.firestore.FieldValue.serverTimestamp(),legacyTime:x.time,migrated:true});
+        return 'added';
+      });
+      if(outcome==='added'){added++;addLog('✅ '+x.name)}else{exists++;addLog('↷ 기존 서버 기록 유지: '+x.name)}
+    }catch(e){failed++;addLog('❌ '+x.name+' — '+(e.code||e.message))}
+  }
+  let count=0,verifyFailed=0;
+  for(const x of RECORDS){try{const s=await db.collection('distribution_status').doc(x.id).get({source:'server'});if(s.exists&&s.data().status==='완료')count++}catch(e){verifyFailed++;addLog('조회 실패: '+x.name+' — '+e.message)}}
+  addLog('──────────');addLog('신규 등록 '+added+' / 기존 유지 '+exists+' / 등록 오류 '+failed);
+  addLog('✅ 완료 상태 서버 확인 '+count+' / 36건');
+  if(count===36&&failed===0&&verifyFailed===0){status('✅ 이전 완료! Firestore 서버에서 배포 완료 36 / 36건을 확인했습니다.','good');}
+  else{status('⚠️ 일부 미완료: 완료 상태 '+count+' / 36건. 아래 로그를 확인하세요. 기존 기록은 보존되어 있습니다.','bad')}
+  busy=false;refresh();
+});
+</script>
+</body></html>
