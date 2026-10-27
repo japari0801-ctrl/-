@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1b2649"><title>자파리 배포 완료 36건 서버 등록</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',Arial,sans-serif;color:#162034;line-height:1.65}.wrap{max-width:720px;margin:25px auto;padding:18px}.panel{border-radius:16px;background:#fff;box-shadow:0 4px 30px #14203b12;padding:28px}h1{font-size:22px;margin:0 0 4px}p{font-size:14px;color:#46546b}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.stat{background:#f4f7fb;padding:14px 6px;border-radius:10px;text-align:center;font-size:12px;color:#6b788b}.stat strong{display:block;font-size:23px;color:#20385f}.btn{background:#2059e8;color:white;border:0;border-radius:9px;font-weight:700;font-size:15px;padding:12px 15px;cursor:pointer;margin:5px 6px 5px 0}.btn:disabled{background:#aeb8ce;cursor:not-allowed}.line{padding:12px;border-radius:10px;background:#eaf1ff;color:#244b99;margin:10px 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.line.ok{background:#e9f8ef;color:#16713a}.line.err{background:#fff0ec;color:#b24328}.line.warn{background:#fff7e5;color:#7f5811}.tick{display:flex;gap:9px;align-items:flex-start;margin:14px 0 4px;font-size:14px}.tick input{margin-top:5px;transform:scale(1.2)}.small{font-size:12px;color:#6e7b8e}.names{max-height:210px;overflow:auto;padding:7px 12px;background:#f7f9fc;border:1px solid #e1e8f2;border-radius:10px;font-size:12px;color:#455670}.meter{height:10px;overflow:hidden;background:#e5edf7;border-radius:999px;margin:12px 0}.fill{height:100%;width:0;background:#23a46b;transition:width .3s}a{color:#2563eb}@media(max-width:500px){.wrap{margin:4px;padding:10px}.panel{padding:20px}.stat strong{font-size:20px}}
+</style>
+</head>
+<body><main class="wrap"><section class="panel">
+<h1>자파리 배포 완료 기록 서버 등록</h1>
+<p>기존 휴대폰 백업에서 확인된 <b>완료 36곳</b>만 Firebase Firestore에 등록합니다. <b>대기 325곳은 저장하지 않으며</b>, 서버에 이미 있는 기관 기록은 덮어쓰지 않습니다.</p>
+<div class="stats"><div class="stat">전체 기관<strong>361</strong></div><div class="stat">완료 기록<strong>36</strong></div><div class="stat">대기 기관<strong>325</strong></div></div>
+<div id="connection" class="line">연결 확인 중…</div>
+<div id="server" class="line">서버의 기존 기록을 아직 확인하지 않았습니다.</div>
+<div class="names" id="names"></div>
+<label class="tick"><input id="consent" type="checkbox" disabled><span>기존 완료 36건을 서버에 등록하는 것에 동의합니다. <b>서버에 이미 존재하는 기록은 그대로 유지됩니다.</b></span></label>
+<button class="btn" type="button" id="upload" disabled>완료 36곳 서버에 등록</button>
+<button class="btn" type="button" id="verify" disabled>서버 완료 건수 다시 확인</button>
+<div id="result" class="line">준비 중입니다.</div><div class="meter"><div id="fill" class="fill"></div></div>
+<p class="small">백업에는 정확한 배포 날짜가 없고 <b>시간 문자</b>만 존재합니다. 원래 담당자와 시간은 보존하며, 이전 작업 날짜와 실제 배포 날짜를 혼동하지 않도록 별도 필드로 저장합니다.</p>
+<p class="small">완료 확인 후 이 파일(<code>seed-history-36.html</code>)은 GitHub에서 삭제하세요. 기존 <code>index.html</code>, <code>data.json</code>, <code>firebase-config.js</code>는 교체하지 않습니다.</p>
+</section></main>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+'use strict';
+const backups = [{"id":1,"name":"프라임국제어린이집","worker":"강석영센터장","time":"오전 11:47","status":"완료"},{"id":6,"name":"요술배어린이집","worker":"강석영센터장","time":"오후 04:40","status":"완료"},{"id":8,"name":"부라보 어린이집","worker":"강석영센터장","time":"오전 10:52","status":"완료"},{"id":31,"name":"근로복지공단제주어린이집","worker":"강석영센터장","time":"오전 11:47","status":"완료"},{"id":42,"name":"요요어린이집","worker":"강석영센터장","time":"오전 10:38","status":"완료"},{"id":44,"name":"참어린이집","worker":"강석영센터장","time":"오전 11:04","status":"완료"},{"id":46,"name":"제주어린이집","worker":"강석영센터장","time":"오후 04:28","status":"완료"},{"id":48,"name":"공립삼도어린이집","worker":"강석영센터장","time":"오전 10:32","status":"완료"},{"id":82,"name":"공립삼화휴먼시아어린이집","worker":"강석영센터장","time":"오전 11:29","status":"완료"},{"id":86,"name":"키즈빌어린이집","worker":"강석영센터장","time":"오후 02:55","status":"완료"},{"id":88,"name":"전원어린이집","worker":"강석영센터장","time":"오후 03:20","status":"완료"},{"id":91,"name":"피터팬어린이집","worker":"강석영센터장","time":"오전 10:45","status":"완료"},{"id":95,"name":"제주시찌다어린이집","worker":"강석영센터장","time":"오후 04:03","status":"완료"},{"id":100,"name":"제주삼성어린이집","worker":"강석영센터장","time":"오전 11:24","status":"완료"},{"id":107,"name":"제주경찰청 어린이집","worker":"강석영센터장","time":"오전 10:50","status":"완료"},{"id":112,"name":"정부제주지방합동청사 청사랑어린이집","worker":"강석영센터장","time":"오후 04:10","status":"완료"},{"id":132,"name":"연세어린이집","worker":"강석영센터장","time":"오전 11:09","status":"완료"},{"id":143,"name":"한마음 어린이집","worker":"강석영센터장","time":"오후 03:06","status":"완료"},{"id":145,"name":"힘찬 어린이집","worker":"강석영센터장","time":"오전 10:56","status":"완료"},{"id":170,"name":"제주시청직장어린이집","worker":"강석영센터장","time":"오후 03:57","status":"완료"},{"id":173,"name":"아이숲어린이집","worker":"강석영센터장","time":"오전 11:04","status":"완료"},{"id":191,"name":"파란나라 어린이집","worker":"강석영센터장","time":"오후 03:57","status":"완료"},{"id":192,"name":"늘사랑어린이집","worker":"강석영센터장","time":"오전 11:11","status":"완료"},{"id":202,"name":"꿈빛나무어린이집","worker":"강석영센터장","time":"오전 11:15","status":"완료"},{"id":203,"name":"다인어린이집","worker":"강석영센터장","time":"오전 11:19","status":"완료"},{"id":211,"name":"이도어린이집","worker":"강석영센터장","time":"오후 03:23","status":"완료"},{"id":233,"name":"늘찬어린이집","worker":"강석영센터장","time":"오전 11:31","status":"완료"},{"id":239,"name":"아이조아어린이집","worker":"강석영센터장","time":"오전 10:36","status":"완료"},{"id":246,"name":"다올어린이집","worker":"강석영센터장","time":"오후 03:29","status":"완료"},{"id":255,"name":"이든어린이집","worker":"강석영센터장","time":"오후 03:37","status":"완료"},{"id":277,"name":"삼화도담어린이집","worker":"강석영센터장","time":"오전 11:42","status":"완료"},{"id":288,"name":"Kt cs 루키어린이집","worker":"강석영센터장","time":"오전 10:25","status":"완료"},{"id":313,"name":"해달별어린이집","worker":"강석영센터장","time":"오전 10:55","status":"완료"},{"id":317,"name":"꿈꾸는어린이집","worker":"강석영센터장","time":"오전 10:41","status":"완료"},{"id":335,"name":"삼화lh까르르어린이집","worker":"강석영센터장","time":"오전 11:34","status":"완료"},{"id":341,"name":"해달별어린이집","worker":"강석영센터장","time":"오전 10:55","status":"완료"}];
+const byId = id=>document.getElementById(id);
+const source = '2026-10-27 휴대폰 localStorage 백업 (배포일 미기록)';
+let db=null, busy=false;
+function show(id,message,style=''){const el=byId(id);el.textContent=message;el.className='line '+style;}
+function friendly(e){const code=e&&e.code?String(e.code):'unknown'; return `${code}: ${e&&e.message?e.message:String(e)}`;}
+function toggleState(b){busy=b;byId('upload').disabled = b||!db||!byId('consent').checked;byId('verify').disabled=b||!db;}
+async function serverVerify(){
+ if(!db)return;
+ const refs = backups.map(x=>db.collection('distribution_status').doc(String(x.id)));
+ const snaps=[];
+ // Server-only reads avoid counting cached local values as server verification
+ for(let i=0;i<refs.length;i+=12){
+   const group=refs.slice(i,i+12);
+   const next=await Promise.all(group.map(ref=>ref.get({source:'server'})));
+   snaps.push(...next);
+ }
+ const done = snaps.filter(s=>s.exists && s.data().status==='완료');
+ const missing = snaps.filter(s=>!s.exists);
+ const others = snaps.filter(s=>s.exists && s.data().status!=='완료');
+ show('server',`완료 36건 서버 검증: ${done.length}/36건 완료 · ${missing.length}건 미등록 · ${others.length}건 다른 상태`,others.length?'warn':done.length===36?'ok':'');
+ byId('fill').style.width=(`${Math.round(done.length/36*100)}%`);
+ return {done:done.length,missing:missing.length,others:others.length};
+}
+async function connect(){
+ byId('names').textContent=backups.map((x,i)=>`${i+1}. ${x.name} — ${x.worker} (${x.time})`).join('\n');
+ try {
+  if(!window.ZAPARI_FIREBASE_CONFIG) throw Error('firebase-config.js 파일을 불러오지 못했습니다.');
+  const cfg=window.ZAPARI_FIREBASE_CONFIG;
+  if(cfg.projectId!=='japari-distribution-manager') throw Error(`다른 프로젝트로 연결되어 있습니다: ${cfg.projectId}`);
+  if(typeof firebase==='undefined') throw Error('Firebase SDK를 불러오지 못했습니다.');
+  if(!firebase.apps.length)firebase.initializeApp(cfg);
+  const auth = await firebase.auth().signInAnonymously();
+  db=firebase.firestore();
+  show('connection',`Firebase 연결 성공 · 프로젝트: ${cfg.projectId} · 인증 UID: ${auth.user.uid.slice(0,8)}…`,'ok');
+  await serverVerify();
+  byId('consent').disabled=false;
+  byId('consent').addEventListener('change',()=>toggleState(false));
+  byId('verify').disabled=false;
+  show('result','준비 완료. 체크박스를 선택하고 버튼을 눌러 주세요.');
+ }catch(e){show('connection','Firebase 연결/읽기 실패: '+friendly(e),'err');show('result','설정 파일, Authentication 및 Firestore 규칙을 확인해 주세요.','warn');}
+}
+async function migrate(){
+ if(busy||!db||!byId('consent').checked)return;
+ if(!confirm('기존 완료 36건 중 서버에 없는 기관만 등록합니다. 계속할까요?'))return;
+ toggleState(true);
+ try{
+  show('result','서버에 이미 있는 36건을 확인하고, 없는 기관만 등록하고 있습니다.','');
+  const result=await db.runTransaction(async tx=>{
+    const refs=backups.map(x=>db.collection('distribution_status').doc(String(x.id)));
+    // Every transaction read must occur before any write
+    const snaps = await Promise.all(refs.map(ref=>tx.get(ref)));
+    let created=0,skipped=0;
+    snaps.forEach((snap,i)=>{
+      const x=backups[i];
+      if(snap.exists){skipped++;return;}
+      tx.set(refs[i],{
+        status:'완료', worker:x.worker, time:x.time,
+        legacyImport:true, sourceBackup:source,
+        actualDistributionDateKnown:false,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+        importedAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      created++;
+    });
+    return {created,skipped};
+  });
+  const status=await serverVerify();
+  const msg=`서버 등록 처리: 신규 ${result.created}곳 · 기존 기록 유지 ${result.skipped}곳.\n서버 완료 검증: ${status.done}/36건.`;
+  show('result',msg+(status.done===36?'\n✅ 36곳 모두 확인되었습니다. 기존 앱에서 완료 36곳인지 확인한 뒤 이 도구를 삭제하세요.':'\n⚠️ 미등록 또는 다른 상태가 있습니다. 화면 결과를 공유해 주세요.'),status.done===36?'ok':'warn');
+ }catch(e){show('result','서버 등록 실패: '+friendly(e)+'\nFirebase Firestore 규칙에서 쓰기 권한이 있는지 확인하세요. 기존 앱과 백업은 변경되지 않았습니다.','err');}
+ finally{toggleState(false);}
+}
+byId('upload').addEventListener('click',migrate);
+byId('verify').addEventListener('click',async()=>{toggleState(true);try{const s=await serverVerify();show('result',s.done===36?'✅ 서버에서 완료 36건 모두 확인했습니다.':'서버 완료 건수 확인: '+s.done+'/36건',s.done===36?'ok':'warn')}catch(e){show('result','조회 실패: '+friendly(e),'err')}finally{toggleState(false)}});
+connect();
+</script>
+</body></html>
