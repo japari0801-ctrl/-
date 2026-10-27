@@ -72,6 +72,8 @@
     .btn-ing { flex: 1.2; padding: 8px 0; background: #f97316; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
     .btn-done { flex: 1.2; padding: 10px 0; background: #10b981; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
     .btn-cancel { flex: 0.8; padding: 8px 0; background: #ef4444; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-undo-done { flex: 0 0 auto; padding: 9px 11px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; font-size: 12px; font-weight: 800; color: #b91c1c; cursor: pointer; }
+    .done-time { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: center; font-size: 11px; color: #15803d; font-weight: 700; padding: 6px 1px; }
   </style>
 </head>
 <body>
@@ -604,8 +606,9 @@
         }
       } else {
         btns = `
-          <a href="${mapLink}" target="_blank" class="btn-map" style="flex:1;">지도</a>
-          <div style="flex:2;text-align:center;font-size:12px;color:#16a34a;font-weight:700;padding:8px 0;">배포 완료 (${escapeText(item.time)})</div>
+          <a href="${mapLink}" target="_blank" class="btn-map" style="flex:0.7;">지도</a>
+          <div class="done-time">완료 (${escapeText(item.time)})</div>
+          <button class="btn-undo-done" onclick="setStatus(${Number(item.id)}, '대기')">↩ 완료 취소</button>
         `;
       }
 
@@ -630,11 +633,22 @@
     async function setStatus(id, newStatus) {
       const item = allAgencies.find(x => String(x.id) === String(id));
       if (!item) return alert('기관을 찾을 수 없습니다.');
-      if (item.status === '완료') return alert('이미 배포 완료된 기관입니다.');
-      if (newStatus === '완료' && !confirm(`'${item.name}' 배포를 완료하셨습니까?`)) return;
+
+      const undoCompleted = item.status === '완료' && newStatus === '대기';
+      if (item.status === '완료' && !undoCompleted) return alert('이미 배포 완료된 기관입니다.');
+      if (item.status === '대기' && newStatus === '대기') return;
+
+      if (undoCompleted) {
+        // 완료 취소는 서버의 36건 백업 기록을 덮어쓰므로, 서버 연결을 필수로 함.
+        if (!firestoreDb) return alert('Firebase 연결 중에만 완료 취소할 수 있습니다. 연결 상태를 확인해주세요.');
+        if (!confirm(`'${item.name}'의 배포 완료를 취소하고 대기 상태로 되돌릴까요?\n\n기존 담당: ${item.worker || '미지정'}\n완료 기록: ${item.time || '시간 미기록'}\n\n취소 이력은 서버에 남습니다.`)) return;
+      } else if (newStatus === '완료' && !confirm(`'${item.name}' 배포를 완료하셨습니까?`)) {
+        return;
+      }
+
       const nowStr = new Date().toLocaleString('ko-KR');
       if (!firestoreDb) {
-        const from = item.status;
+        // 기존 오프라인 로컬 저장 흐름은 유지하되 완료 취소만은 서버 필수.
         item.status = newStatus;
         item.worker = newStatus === '대기' ? '' : activeUser;
         item.time = newStatus === '대기' ? '' : nowStr;
@@ -642,22 +656,50 @@
         syncMessage('⚠️ 로컬 저장만 완료 · 다른 직원에게 공유되지 않음');
         return;
       }
+
       try {
         const ref = firestoreDb.collection('distribution_status').doc(String(item.id));
         await firestoreDb.runTransaction(async transaction => {
           const snapshot = await transaction.get(ref);
-          const old = snapshot.exists ? snapshot.data() : {status:'대기',worker:''};
-          // 최신 서버 상태 검사: 다른 직원이 먼저 처리한 상태의 덮어쓰기 방지
-          if (old.status === '완료' && newStatus !== '완료') throw Error('이미 배포 완료된 기관은 되돌릴 수 없습니다.');
-          if (old.status === '배포중' && old.worker && old.worker !== activeUser) throw Error('다른 선생님이 배포 중입니다.');
-          if (old.status === '완료' && newStatus === '완료') throw Error('이미 배포 완료된 기관입니다.');
-          const next = {status:newStatus, worker:newStatus==='대기'?'':activeUser,time:newStatus==='대기'?'':nowStr, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-          transaction.set(ref,next);
-          const auditRef=firestoreDb.collection('distribution_history').doc();
-          transaction.set(auditRef,{agencyId:String(item.id),name:item.name,worker:activeUser,from:old.status||'대기',to:newStatus,at:firebase.firestore.FieldValue.serverTimestamp()});
+          // 서버에 아직 등록되지 않은 과거 완료 기록은 data.json 초기값을 참조.
+          const fallback = seedById.get(String(item.id)) || {status:'대기',worker:'',time:''};
+          const old = snapshot.exists ? snapshot.data() : fallback;
+          const oldStatus = old.status || '대기';
+
+          // 다른 사람이 먼저 변경한 경우, 오래된 화면의 변경으로 덮어쓰지 않음.
+          if (oldStatus !== item.status) {
+            throw Error('서버에서 기관 상태가 먼저 변경되었습니다. 최신 목록을 확인한 뒤 다시 시도해 주세요.');
+          }
+          if (oldStatus === '배포중' && old.worker && old.worker !== activeUser) {
+            throw Error('다른 선생님이 배포 중입니다.');
+          }
+          if (oldStatus === '완료' && !undoCompleted) {
+            throw Error('이미 배포 완료된 기관입니다.');
+          }
+          if (undoCompleted && oldStatus !== '완료') {
+            throw Error('현재 서버 상태가 완료가 아니므로 완료 취소할 수 없습니다.');
+          }
+
+          const next = {
+            status: newStatus,
+            worker: newStatus === '대기' ? '' : activeUser,
+            time: newStatus === '대기' ? '' : nowStr,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          transaction.set(ref, next);
+          const auditRef = firestoreDb.collection('distribution_history').doc();
+          transaction.set(auditRef, {
+            agencyId: String(item.id), name: item.name, worker: activeUser,
+            from: oldStatus, to: newStatus,
+            previousWorker: old.worker || '', previousTime: old.time || '',
+            action: undoCompleted ? '완료취소' : '상태변경',
+            at: firebase.firestore.FieldValue.serverTimestamp()
+          });
         });
-      } catch(e) {
-        alert('상태 변경 실패: '+e.message);
+        if (undoCompleted) alert(`'${item.name}' 배포 완료를 취소했습니다.\n이제 [남은기관] 탭에서 확인할 수 있습니다.`);
+      } catch (e) {
+        console.error('Distribution status change failed', e);
+        alert('상태 변경 실패: ' + e.message);
       }
     }
 
