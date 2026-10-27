@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>자파리 Firebase 연결 진단</title>
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;background:#f4f7fc;color:#17253b;margin:0;padding:18px}main{max-width:700px;margin:28px auto;background:white;padding:26px;border-radius:16px;box-shadow:0 10px 35px #17253b12}h1{font-size:23px;margin:0 0 10px}p{line-height:1.6;font-size:14px}.muted{color:#68788a}.step{padding:12px;margin:10px 0;border:1px solid #dae2ed;border-radius:10px;background:#f8faff;line-height:1.5;overflow-wrap:anywhere}.ok{background:#eefaf4;border-color:#bbecd0;color:#10663a}.err{background:#fff4f2;border-color:#ffc8c0;color:#a42b22}button{background:#2563eb;color:white;border:0;border-radius:10px;padding:14px 17px;font-size:15px;font-weight:750;cursor:pointer}button:disabled{background:#9cafc9}code{background:#edf1fa;padding:2px 4px;border-radius:4px;overflow-wrap:anywhere}pre{background:#17253b;color:#e6efff;border-radius:9px;padding:14px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:250px;overflow:auto}
+</style></head><body><main>
+<h1>자파리 Firebase 연결 진단</h1><p>서버에 배포 기록을 추가하거나 변경하지 않는 검사 페이지입니다. 기존 완료 36곳에도 영향을 주지 않습니다. 익명 인증 테스트 시 Firebase 익명 사용자 계정이 생성될 수 있습니다.</p>
+<button type="button" id="test">연결 검사 실행</button>
+<div id="steps" aria-live="polite"></div><h3>검사 상세</h3><pre id="logs">검사를 실행하세요.</pre>
+<p class="muted">완료 기록은 기존 앱과 별도로 보관하세요. 검사가 끝나면 이 진단 페이지는 GitHub에서 삭제해도 됩니다.</p>
+</main>
+<script>
+const output=document.getElementById('steps');
+const logEl=document.getElementById('logs');
+const btn=document.getElementById('test');
+function log(s){logEl.textContent+='\n'+s}
+function step(msg,kind=''){const e=document.createElement('div');e.className='step '+kind;e.textContent=msg;output.appendChild(e)}
+function inject(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('스크립트 로드 실패: '+src));document.head.appendChild(s)})}
+function errorHint(e){const code=String(e?.code||'');const msg=String(e?.message||e||'');
+ if(code.includes('api-key-not-valid')||msg.toLowerCase().includes('api key not valid'))return 'Firebase 원본 apiKey가 실제로 유효한지 Google Cloud → API 및 서비스 → 사용자 인증 정보에서 확인하세요. 이전 값/제한/삭제 문제일 수 있습니다.';
+ if(code.includes('operation-not-allowed'))return 'Firebase 콘솔 → Authentication → 로그인 방법에서 익명(Anonymous)을 사용 설정해 주세요.';
+ if(code.includes('unauthorized-domain'))return 'Firebase Authentication → 설정 → 승인된 도메인에 japari0801-ctrl.github.io가 있는지 확인해 주세요.';
+ if(code.includes('permission-denied'))return 'Firestore 규칙이 이 익명 인증 사용자의 읽기를 허용하는지 확인해 주세요. 이 검사는 규칙을 우회하지 않습니다.';
+ if(code.includes('network-request-failed')||code.includes('unavailable'))return '인터넷 연결, 브라우저 광고/추적 차단, VPN 및 Firebase 서비스 접근을 확인해 주세요.';
+ return '원인 확인을 위해 검사 상세와 오류 코드를 공유해 주세요.';
+}
+btn.addEventListener('click', async()=>{
+ btn.disabled=true; output.replaceChildren();logEl.textContent='연결 검사 시작: '+new Date().toLocaleString('ko-KR');
+ try{
+  const v='?check='+Date.now();
+  await inject('./firebase-config.js'+v);
+  const c=window.ZAPARI_FIREBASE_CONFIG;
+  if(!c||!c.apiKey||!c.projectId||!c.appId)throw Error('firebase-config.js 내부 설정 객체를 찾지 못했습니다.');
+  step('1. Firebase 설정 파일 로딩 성공 · 프로젝트: '+c.projectId+' · 키 끝 4자리: '+c.apiKey.slice(-4),'ok');
+  log('config: '+JSON.stringify({projectId:c.projectId,authDomain:c.authDomain,appId:c.appId,apiKeyLast4:c.apiKey.slice(-4)}));
+  await inject('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js');
+  await inject('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js');
+  await inject('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js');
+  if(typeof firebase==='undefined'||!firebase.auth||!firebase.firestore)throw Error('Firebase SDK 로드 실패');
+  if(!firebase.apps.length)firebase.initializeApp(c);
+  step('2. Firebase SDK 초기화 성공','ok');
+  try{
+   const cred=await firebase.auth().signInAnonymously();
+   step('3. Firebase 익명 로그인 성공 · uid: '+cred.user.uid.slice(0,8)+'…','ok');
+  }catch(e){step('3. Firebase 익명 로그인 실패 · '+(e.code||'')+' · '+e.message,'err');step(errorHint(e),'err');log('인증 오류: '+(e.stack||e));return}
+  try{
+   const snap=await firebase.firestore().collection('distribution_status').limit(1).get({source:'server'});
+   step('4. Firestore 서버 읽기 성공 · 서버에 현재 일부 상태 기록 '+snap.size+'건 확인','ok');
+   step('결론: 앱에서 Firebase 공동 동기화를 시험할 수 있습니다. 단, 직원별 접근 통제 규칙은 별도로 점검해야 합니다.','ok');
+  }catch(e){step('4. Firestore 서버 읽기 실패 · '+(e.code||'')+' · '+e.message,'err');step(errorHint(e),'err');log('Firestore 오류: '+(e.stack||e))}
+ }catch(e){step('연결 검사 실패 · '+(e.code||'')+' · '+e.message,'err');step(errorHint(e),'err');log(e.stack||String(e))}
+ finally{btn.disabled=false}
+});
+</script></body></html>
