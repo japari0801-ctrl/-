@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>자파리 홍보물 배포 매니저</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta name="theme-color" content="#1b2649">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+    body { margin: 0; background: #f8fafc; color: #1e293b; }
+    
+    #loginPage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+    .login-box { background: white; width: 100%; max-width: 340px; padding: 32px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center; }
+    .login-box img { width: 72px; height: 72px; border-radius: 16px; margin-bottom: 12px; object-fit: cover; }
+    .login-box h2 { margin: 0 0 8px; font-size: 20px; font-weight: 800; color: #0f172a; }
+    .login-box p { margin: 0 0 24px; font-size: 13px; color: #64748b; }
+    .input-field { width: 100%; padding: 13px 14px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; outline: none; }
+    .login-btn { width: 100%; padding: 15px; background: #2563eb; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+
+    #appPage { display: none; padding-bottom: 50px; }
+    .top-bar { position: sticky; top: 0; background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+    .user-tag { font-size: 14px; font-weight: 700; color: #1e293b; }
+    .top-btn { background: none; border: 1px solid #cbd5e1; padding: 5px 8px; border-radius: 6px; font-size: 11px; color: #475569; cursor: pointer; }
+
+    .ai-agent-card { margin: 12px 16px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border-radius: 16px; padding: 16px; box-shadow: 0 8px 20px rgba(15,23,42,0.15); border: 1.5px solid #38bdf8; }
+    .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .ai-badge { background: #38bdf8; color: #0f172a; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+    .ai-msg { font-size: 13px; line-height: 1.6; color: #f1f5f9; margin-bottom: 12px; word-break: keep-all; }
+    .ai-btn-row { display: flex; gap: 8px; }
+    .ai-action-btn { flex: 1.2; padding: 10px 0; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; }
+    .ai-map-btn { flex: 1; padding: 10px 0; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+
+    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 16px; background: #ffffff; border-bottom: 1px solid #e2e8f0; }
+    .stat-card { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 8px 4px; text-align: center; cursor: pointer; }
+    .stat-card.active { border-color: #2563eb; background: #eff6ff; }
+    .stat-label { font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+    .stat-val { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .stat-card.active .stat-val { color: #2563eb; }
+
+    .filter-section { padding: 12px 16px; background: white; border-bottom: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px; }
+    .search-input { width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; }
+    .filter-row { display: flex; gap: 8px; }
+    .select-box { flex: 1; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; background: white; outline: none; }
+    .gps-btn { padding: 8px 12px; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    .group-wrap { margin-bottom: 10px; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; background: white; }
+    .group-header { padding: 14px 16px; background: #f8fafc; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; user-select: none; }
+    .group-wrap.open .group-header { border-bottom-color: #e2e8f0; background: #f1f5f9; }
+    .group-title { font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+    .group-badge { font-size: 12px; font-weight: 700; color: #2563eb; }
+    .group-map-btn { font-size: 11px; padding: 3px 8px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; color: #475569; text-decoration: none; font-weight: 600; margin-right: 8px; }
+    .group-body { display: none; padding: 12px 14px; flex-direction: column; gap: 10px; }
+    .group-wrap.open .group-body { display: flex; }
+
+    .card { background: white; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .badges { display: flex; gap: 4px; }
+    .badge-company { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; color: #475569; font-weight: 600; }
+    .badge-status { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+    .status-wait { background: #f1f5f9; color: #64748b; }
+    .status-ing { background: #ffedd5; color: #ea580c; }
+    .status-done { background: #dcfce7; color: #16a34a; }
+    .card-address { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.4; }
+    .card-info { font-size: 11px; color: #94a3b8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .dist-tag { color: #dc2626; font-weight: 800; background: #fee2e2; padding: 2px 6px; border-radius: 4px; }
+
+    .card-actions { display: flex; gap: 6px; }
+    .btn-map { flex: 1; padding: 8px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; color: #334155; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .btn-ing { flex: 1.2; padding: 8px 0; background: #f97316; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-done { flex: 1.2; padding: 10px 0; background: #10b981; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+    .btn-cancel { flex: 0.8; padding: 8px 0; background: #ef4444; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div id="loginPage">
+    <div class="login-box">
+      <img src="icon.png" alt="logo" onerror="this.style.display='none'">
+      <h2>홍보물 배포 매니저</h2>
+      <p>공동 배포 현황 · GPS 동선 관리 (로그인 7일 유지)</p>
+      <form onsubmit="event.preventDefault(); doLogin();">
+        <input type="text" id="userId" class="input-field" placeholder="아이디 (예: 강석영센터장)" autocomplete="off">
+        <input type="password" id="userPw" class="input-field" placeholder="비밀번호" autocomplete="off">
+        <button type="submit" class="login-btn">로그인</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="appPage">
+    <div class="top-bar">
+      <div class="user-tag">👤 <span id="userNameTxt"></span></div>
+      <button class="top-btn" onclick="logout()">로그아웃</button>
+    </div>
+
+    <!-- AI 에이전트 브리핑 -->
+    <div class="ai-agent-card" id="aiCard">
+      <div class="ai-header">
+        <span class="ai-badge">📍 배포 동선 플래너</span>
+        <span style="font-size: 11px; color:#94a3b8;" id="aiTimeTag">실시간 분석</span>
+      </div>
+      <div class="ai-msg" id="aiMsgTxt">
+        GPS 기반 기관 직선거리를 계산하고 있습니다...
+      </div>
+      <div class="ai-btn-row">
+        <button class="ai-action-btn" onclick="runAiAgentPlanner()">↻ 동선 다시 계산</button>
+        <a id="aiCourseMapBtn" href="#" target="_blank" class="ai-map-btn" style="display:none;">🗺️ 전체 경로 열기</a>
+      </div>
+    </div>
+
+    <!-- 대시보드 -->
+    <div style="margin:0 16px 8px;font-size:12px;color:#64748b" id="syncState" role="status">동기화 상태 확인 중...</div>
+    <div class="dashboard">
+      <div class="stat-card" onclick="setStatusTab('전체')" id="tab-전체"><div class="stat-label">전체</div><div class="stat-val" id="totalCnt">0</div></div>
+      <div class="stat-card active" onclick="setStatusTab('대기')" id="tab-대기"><div class="stat-label">남은기관</div><div class="stat-val" id="waitCnt">0</div></div>
+      <div class="stat-card" onclick="setStatusTab('배포중')" id="tab-배포중"><div class="stat-label">배포중</div><div class="stat-val" id="ingCnt">0</div></div>
+      <div class="stat-card" onclick="setStatusTab('완료')" id="tab-완료"><div class="stat-label">완료</div><div class="stat-val" id="doneCnt">0</div></div>
+    </div>
+
+    <!-- 필터 및 검색 바 -->
+    <div class="filter-section">
+      <input type="text" id="searchBox" class="search-input" placeholder="어린이집명 or 동네/주소 검색..." oninput="applyFilters()">
+      <div class="filter-row">
+        <select id="companySelect" class="select-box" onchange="applyFilters()"><option value="전체">체육업체: 전체</option></select>
+        <select id="sortSelect" class="select-box" onchange="applyFilters()">
+          <option value="dist_asc">📍 내 위치 가까운 순</option>
+          <option value="district">📂 구역별 묶어보기</option>
+          <option value="cur_desc">현원수 많은순 ↓</option>
+          <option value="name_asc">어린이집 이름순</option>
+        </select>
+        <button class="gps-btn" onclick="startGpsWatch()">📍 GPS 갱신</button>
+      </div>
+    </div>
+
+    <div style="padding: 10px 16px; font-size: 12px; color: #64748b; display: flex; justify-content: space-between;">
+      <span>조회된 기관: <strong id="filterCnt" style="color:#2563eb;">0</strong>곳</span>
+      <span id="gpsAccuracyTxt" style="color:#10b981; font-weight:700;">GPS 연결 중...</span>
+    </div>
+
+    <div id="listContainer" style="padding: 0 16px;"></div>
+    <details style="margin:20px 16px;color:#475569;font-size:12px"><summary>최근 배포 변경 이력</summary><div id="historyList" style="padding:12px 0">기록 없음</div></details>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const USERS = { "김동성대표": "1111", "지민규팀장": "2222", "강석영센터장": "3333" };
+
+    let allAgencies = [];
+    let activeUser = null;
+    let currentStatusTab = '대기';
+    let userLocation = null;
+    let firestoreDb = null;
+    let unsubscribeLive = null;
+    let gpsWatcherId = null;
+    let lastPlannerRun = 0;
+    // data.json에 포함된 기존 완료 36건을 공통 초기 기록으로 보관.
+    const seedById = new Map();
+    const syncEl = () => document.getElementById('syncState');
+    function syncMessage(msg) { if(syncEl()) syncEl().textContent = msg; }
+    function validCoords(item) {
+      return Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng)) &&
+        Number(item.lat) >= 33.0 && Number(item.lat) <= 34 &&
+        Number(item.lng) >= 126 && Number(item.lng) <= 127;
+    }
+    function escapeText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function routeUrl(route) {
+      const coords = route.filter(validCoords);
+      if (!coords.length) return '#';
+      const params = new URLSearchParams({api:'1',travelmode:'driving'});
+      params.set('origin', userLocation ? `${userLocation.lat},${userLocation.lng}` : '제주시 도남동');
+      params.set('destination', `${coords[coords.length-1].lat},${coords[coords.length-1].lng}`);
+      if (coords.length > 1) params.set('waypoints', coords.slice(0,-1).map(p=>`${p.lat},${p.lng}`).join('|'));
+      return 'https://www.google.com/maps/dir/?'+params.toString();
+    }
+    async function connectSharedData() {
+      const cfg = window.ZAPARI_FIREBASE_CONFIG;
+      if (!cfg || !cfg.apiKey || cfg.apiKey.startsWith('PASTE_') || typeof firebase === 'undefined') {
+        syncMessage('⚠️ 공동 동기화 미연결 · 이 기기에만 임시 저장됩니다. Firebase 설정 필요');
+        return;
+      }
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(cfg);
+        await firebase.auth().signInAnonymously();
+        firestoreDb = firebase.firestore();
+        subscribeLiveData();
+      } catch(e) {
+        console.error('Firebase connection error',e);
+        syncMessage('⚠️ Firebase 연결 실패 · 이 기기에서 변경한 내용은 다른 직원에게 공유되지 않습니다');
+      }
+    }
+    function subscribeLiveData() {
+      if (unsubscribeLive) unsubscribeLive();
+      unsubscribeLive = firestoreDb.collection('distribution_status').onSnapshot(snap => {
+        const changed = new Map();
+        snap.forEach(doc => changed.set(doc.id,doc.data()));
+        allAgencies.forEach(item => {
+          const remote = changed.get(String(item.id));
+          // 실제 서버에 기록이 있는 경우만 덮어쓰고, 없는 기관은 data.json의
+          // 기존 배포 완료 기록을 그대로 유지합니다.
+          const original = seedById.get(String(item.id)) || {status:'대기',worker:'',time:''};
+          const result = remote || original;
+          item.status = result.status || '대기';
+          item.worker = result.worker || '';
+          item.time = result.time || '';
+        });
+        saveAgencies(); updateDashboardCounters(); applyFilters(); runAiAgentPlanner();
+        syncMessage('✅ Firebase 연결됨 · 기존 36곳은 데이터 파일 초기 기록으로 표시');
+      }, e => { console.error(e); syncMessage('⚠️ 실시간 동기화 오류 · Firestore 규칙 확인'); });
+      firestoreDb.collection('distribution_history').orderBy('at','desc').limit(30).onSnapshot(s => {
+        const h=document.getElementById('historyList');
+        if (!h) return;
+        h.innerHTML = s.empty ? '기록 없음' : s.docs.map(d=>{
+          const x=d.data(); const date=x.at?.toDate?.();
+          return `<div style="padding:7px 0;border-bottom:1px solid #e2e8f0">${escapeText(date ? date.toLocaleString('ko-KR') : '')} · ${escapeText(x.worker)} · ${escapeText(x.name)} · ${escapeText(x.from)} → <b>${escapeText(x.to)}</b></div>`;
+        }).join('');
+      },e=>console.warn('History failed',e));
+    }
+
+
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const nLat1 = Number(lat1), nLon1 = Number(lon1);
+      const nLat2 = Number(lat2), nLon2 = Number(lon2);
+      if (![nLat1,nLon1,nLat2,nLon2].every(Number.isFinite)) return 999;
+      
+      const R = 6371;
+      const dLat = (nLat2 - nLat1) * Math.PI / 180;
+      const dLon = (nLon2 - nLon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(nLat1 * Math.PI / 180) * Math.cos(nLat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+
+    window.addEventListener('load', async () => {
+      await loadAgenciesData();
+      await connectSharedData();
+      const saved = localStorage.getItem('zapari_auth_final');
+      if (saved) {
+        try {
+          const auth = JSON.parse(saved);
+          if (Date.now() - auth.time < 7 * 24 * 60 * 60 * 1000 && USERS[auth.user]) {
+            activeUser = auth.user;
+            enterApp();
+          }
+        } catch(e) {}
+      }
+    });
+
+    async function loadAgenciesData() {
+      const stored = localStorage.getItem('zapari_data_agentic');
+      let storedList = null;
+      if (stored) {
+        try { storedList = JSON.parse(stored); } catch(e){}
+      }
+
+      try {
+        const res = await fetch('data.json?v=' + Date.now());
+        const raw = await res.json();
+        if (!Array.isArray(raw)) throw new Error('data.json 목록 형식이 아닙니다.');
+        seedById.clear();
+        raw.forEach(x => seedById.set(String(x.id), {
+          status: ['완료','배포중','대기'].includes(x.status) ? x.status : '대기',
+          worker: x.worker || '', time: x.time || ''
+        }));
+        allAgencies = raw.map(x => {
+          const item = {
+            ...x,
+            lat: x.lat == null || x.lat === '' ? null : Number(x.lat),
+            lng: x.lng == null || x.lng === '' ? null : Number(x.lng),
+            district: x.district || (x.address.includes('서귀포') ? '서귀포시' : '제주시'),
+            status: ['완료','배포중','대기'].includes(x.status) ? x.status : '대기',
+            worker: x.worker || '',
+            time: x.time || ''
+          };
+          if (storedList) {
+            const ex = storedList.find(s => String(s.id) === String(item.id));
+            if (ex && ex.status) {
+              // 과거 로컬의 '대기' 캐시가 백업 완료 36건을 지우지 못하게 보호.
+              if (item.status !== '완료' || ex.status === '완료') {
+                item.status = ex.status;
+                item.worker = ex.worker || '';
+                item.time = ex.time || '';
+              }
+            }
+          }
+          return item;
+        });
+      } catch(e) {
+        if (storedList) {
+          allAgencies = storedList;
+        }
+      }
+      saveAgencies();
+    }
+
+    function saveAgencies() {
+      localStorage.setItem('zapari_data_agentic', JSON.stringify(allAgencies));
+    }
+
+    function doLogin() {
+      const id = document.getElementById('userId').value.replace(/\s+/g, '');
+      const pw = document.getElementById('userPw').value.replace(/\s+/g, '');
+      if (USERS[id] && USERS[id] === pw) {
+        activeUser = id;
+        localStorage.setItem('zapari_auth_final', JSON.stringify({ user: id, time: Date.now() }));
+        enterApp();
+      } else {
+        alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('zapari_auth_final');
+      location.reload();
+    }
+
+    function enterApp() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('appPage').style.display = 'block';
+      document.getElementById('userNameTxt').innerText = activeUser;
+      initCompanyFilter();
+      updateDashboardCounters();
+      startGpsWatch();
+      applyFilters();
+    }
+
+    function setStatusTab(tab) {
+      currentStatusTab = tab;
+      ['전체', '대기', '배포중', '완료'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      });
+      applyFilters();
+    }
+
+    function updateDashboardCounters() {
+      let wait = 0, ing = 0, done = 0;
+      allAgencies.forEach(item => {
+        if (item.status === '배포중') ing++;
+        else if (item.status === '완료') done++;
+        else wait++;
+      });
+      document.getElementById('totalCnt').innerText = allAgencies.length;
+      document.getElementById('waitCnt').innerText = wait;
+      document.getElementById('ingCnt').innerText = ing;
+      document.getElementById('doneCnt').innerText = done;
+    }
+
+    function initCompanyFilter() {
+      const select = document.getElementById('companySelect');
+      const companies = new Set();
+      allAgencies.forEach(item => {
+        if (item.company && item.company !== '-') {
+          item.company.split(' ').forEach(c => companies.add(c.trim()));
+        }
+      });
+      select.innerHTML = '<option value="전체">체육업체: 전체</option>';
+      select.innerHTML += '<option value="자파리제외">🚫 자파리 제외 (타업체만)</option>';
+      Array.from(companies).sort().forEach(c => select.innerHTML += `<option value="${c}">${c}</option>`);
+    }
+
+    function startGpsWatch() {
+      if (navigator.geolocation) {
+        if (gpsWatcherId !== null) navigator.geolocation.clearWatch(gpsWatcherId);
+        navigator.geolocation.getCurrentPosition(
+          pos => updateGpsPos(pos),
+          err => {
+            userLocation = null;
+            document.getElementById('gpsAccuracyTxt').innerText = "GPS 권한 없음 · 거리 표시 불가";
+            runAiAgentPlanner();
+            applyFilters();
+          },
+          { enableHighAccuracy: true, timeout: 7000 }
+        );
+
+        gpsWatcherId = navigator.geolocation.watchPosition(
+          pos => updateGpsPos(pos),
+          err => {},
+          { enableHighAccuracy: true, maximumAge: 3000 }
+        );
+      }
+    }
+
+    function updateGpsPos(pos) {
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const acc = Math.round(pos.coords.accuracy || 5);
+      document.getElementById('gpsAccuracyTxt').innerText = `📍 GPS 오차 ±${acc}m`;
+      applyFilters();
+      if (Date.now() - lastPlannerRun > 10000) {
+        lastPlannerRun = Date.now();
+        runAiAgentPlanner();
+      }
+    }
+
+    function runAiAgentPlanner() {
+      if (!userLocation) return;
+
+      const myActiveTargets = allAgencies.filter(x => x.status === '배포중' && x.worker === activeUser);
+
+      if (myActiveTargets.length > 0) {
+        let unvisited = [...myActiveTargets];
+        let currentPt = { lat: userLocation.lat, lng: userLocation.lng };
+        let route = [];
+        let totalDist = 0;
+
+        while (unvisited.length > 0) {
+          unvisited.sort((a, b) => getDistanceKm(currentPt.lat, currentPt.lng, a.lat, a.lng) - getDistanceKm(currentPt.lat, currentPt.lng, b.lat, b.lng));
+          const nextTarget = unvisited.shift();
+          const d = getDistanceKm(currentPt.lat, currentPt.lng, nextTarget.lat, nextTarget.lng);
+          totalDist += d;
+          route.push(nextTarget);
+          currentPt = { lat: nextTarget.lat, lng: nextTarget.lng };
+        }
+
+        const routeNames = route.map((item, idx) => `<strong>${idx+1}.${escapeText(item.name)}</strong>`).join(' ➔ ');
+        const estMin = Math.round(totalDist * 3 + route.length * 7);
+
+        document.getElementById('aiTimeTag').innerText = "배포중 최적순회";
+        document.getElementById('aiMsgTxt').innerHTML = `
+          🎯 <strong>${activeUser}님이 선택한 ${route.length}곳 방문 제안 코스</strong><br>
+          이동 순서: ${routeNames}<br>
+          📏 구간 직선거리 합계 약 <strong>${totalDist.toFixed(1)}km</strong><br>실제 주행거리·시간은 아래 경로 지도에서 확인해주세요.
+        `;
+
+        const mapBtn = document.getElementById('aiCourseMapBtn');
+        mapBtn.style.display = "flex";
+        mapBtn.href = "https://map.kakao.com/link/search/" + encodeURIComponent(route[0].address);
+        mapBtn.innerText = `🗺️ 1번 [${route[0].name}] 길찾기`;
+        return;
+      }
+
+      const candidates = allAgencies.filter(x => x.status === '대기');
+      if (candidates.length === 0) {
+        document.getElementById('aiMsgTxt').innerHTML = "좌표가 있는 대기 기관이 없습니다. 배포 현황 또는 data.json의 좌표를 확인해주세요.";
+        document.getElementById('aiCourseMapBtn').style.display = "none";
+        return;
+      }
+
+      candidates.forEach(x => {
+        x._dist = getDistanceKm(userLocation.lat, userLocation.lng, x.lat, x.lng);
+      });
+      candidates.sort((a, b) => a._dist - b._dist);
+      const nearbyCluster = candidates.slice(0, 4);
+      const namesList = nearbyCluster.map((c, i) => `<strong>${i+1}.${escapeText(c.name)}</strong>(약 ${c._dist < 1 ? Math.round(c._dist*1000)+'m' : c._dist.toFixed(1)+'km'})`).join(' ➔ ');
+
+      document.getElementById('aiTimeTag').innerText = "현재 위치 최단 코스";
+      document.getElementById('aiMsgTxt').innerHTML = `
+        현재 위치에서 직선거리 기준으로 가까운 기관입니다.<br>
+        📍 추천 순서: ${namesList}<br>
+        💡 <strong>[배포중 선택]</strong>을 여러 곳 누르시면 선택한 기관의 방문 순서를 다시 제안합니다. 실제 차량 최적화는 지도에서 확인하세요.
+      `;
+
+      const mapBtn = document.getElementById('aiCourseMapBtn');
+      mapBtn.style.display = "flex";
+      mapBtn.href = "https://map.kakao.com/link/search/" + encodeURIComponent(nearbyCluster[0].address);
+      mapBtn.innerText = `🗺️ 1번 [${nearbyCluster[0].name}] 길찾기`;
+    }
+
+    function applyFilters() {
+      const q = (document.getElementById('searchBox').value || '').toLowerCase();
+      const comp = document.getElementById('companySelect').value;
+      const sort = document.getElementById('sortSelect').value;
+
+      let filtered = allAgencies.filter(item => {
+        if (currentStatusTab !== '전체' && item.status !== currentStatusTab) return false;
+        if (!item.name.toLowerCase().includes(q) && !item.address.toLowerCase().includes(q) && !(item.district || '').includes(q)) return false;
+        
+        // 자파리 제외 필터 로직
+        if (comp === '자파리제외') {
+          if (item.company && item.company.includes('자파리')) return false;
+        } else if (comp !== '전체' && (!item.company || !item.company.includes(comp))) {
+          return false;
+        }
+        return true;
+      });
+
+      if (userLocation) {
+        filtered.forEach(x => {
+          x.calcDist = validCoords(x) ? getDistanceKm(userLocation.lat, userLocation.lng, x.lat, x.lng) : undefined;
+        });
+      }
+
+      if (sort === 'dist_asc' && userLocation) {
+        filtered.sort((a, b) => (a.calcDist ?? 999) - (b.calcDist ?? 999));
+        renderFlatList(filtered);
+      } else if (sort === 'cur_desc') {
+        filtered.sort((a, b) => b.cur - a.cur);
+        renderFlatList(filtered);
+      } else if (sort === 'name_asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        renderFlatList(filtered);
+      } else {
+        renderGroupedList(filtered);
+      }
+
+      document.getElementById('filterCnt').innerText = filtered.length;
+    }
+
+    function renderGroupedList(list) {
+      const container = document.getElementById('listContainer');
+      
+      // 화면 새로고침 전, 현재 열려있는 폴더 이름들을 기억해둠
+      const openFolders = new Set();
+      container.querySelectorAll('.group-wrap.open .group-title').forEach(el => {
+        openFolders.add(el.innerText.replace('📂 ', '').trim());
+      });
+
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">조건에 맞는 기관이 없습니다.</div>';
+        return;
+      }
+
+      const groups = {};
+      list.forEach(item => {
+        const d = item.district || (item.address.includes('서귀포') ? '서귀포시' : '제주시');
+        if (!groups[d]) groups[d] = [];
+        groups[d].push(item);
+      });
+
+      Object.keys(groups).sort().forEach(distName => {
+        const items = groups[distName];
+        const waitCount = items.filter(x => x.status === '대기').length;
+        const groupEl = document.createElement('div');
+        groupEl.className = 'group-wrap';
+        
+        // 이전에 열려있던 폴더면 다시 열어둠 (GPS 새로고침 방어)
+        if (openFolders.has(distName)) {
+          groupEl.classList.add('open');
+        }
+
+        const mapAllUrl = `https://map.kakao.com/link/search/${encodeURIComponent(distName + ' 어린이집')}`;
+
+        groupEl.innerHTML = `
+          <div class="group-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="group-title">📂 ${distName}</span>
+            <div style="display:flex; align-items:center;">
+              <a href="${mapAllUrl}" target="_blank" class="group-map-btn" onclick="event.stopPropagation()">🗺️ ${distName} 지도</a>
+              <span class="group-badge">${waitCount}곳 남음 / 총 ${items.length}곳</span>
+            </div>
+          </div>
+          <div class="group-body" id="group-body-${distName}"></div>
+        `;
+
+        const bodyEl = groupEl.querySelector(`#group-body-${CSS.escape(distName)}`);
+        items.forEach(item => bodyEl.appendChild(createCardEl(item)));
+        container.appendChild(groupEl);
+      });
+    }
+
+    function renderFlatList(list) {
+      const container = document.getElementById('listContainer');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">조건에 맞는 기관이 없습니다.</div>';
+        return;
+      }
+      list.forEach(item => container.appendChild(createCardEl(item)));
+    }
+
+    function createCardEl(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const mapLink = "https://map.kakao.com/link/search/" + encodeURIComponent(item.address);
+
+      let badge = '<span class="badge-status status-wait">대기</span>';
+      if (item.status === '배포중') badge = `<span class="badge-status status-ing">⏳ ${escapeText(item.worker)} 배포중</span>`;
+      else if (item.status === '완료') badge = `<span class="badge-status status-done">✓ ${escapeText(item.worker)} 완료</span>`;
+
+      let distStr = '';
+      if (item.calcDist !== undefined && !isNaN(item.calcDist)) {
+        if (item.calcDist < 1.0) {
+          distStr = `<span class="dist-tag">📍 약 ${Math.round(item.calcDist * 1000)}m</span>`;
+        } else {
+          distStr = `<span class="dist-tag">📍 약 ${item.calcDist.toFixed(1)}km</span>`;
+        }
+      }
+
+      let btns = '';
+      if (item.status === '대기') {
+        btns = `
+          <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+          <button class="btn-ing" onclick="setStatus(${item.id}, '배포중')">배포중 선택</button>
+          <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 완료</button>
+        `;
+      } else if (item.status === '배포중') {
+        if (item.worker === activeUser) {
+          btns = `
+            <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+            <button class="btn-cancel" onclick="setStatus(${item.id}, '대기')">취소</button>
+            <button class="btn-done" onclick="setStatus(${item.id}, '완료')">✓ 배포완료</button>
+          `;
+        } else {
+          btns = `
+            <a href="${mapLink}" target="_blank" class="btn-map">지도</a>
+            <div style="flex:2;text-align:center;font-size:12px;color:#ea580c;font-weight:700;padding:8px 0;background:#fff7ed;border-radius:6px;">${escapeText(item.worker)}님이 이동중</div>
+          `;
+        }
+      } else {
+        btns = `
+          <a href="${mapLink}" target="_blank" class="btn-map" style="flex:1;">지도</a>
+          <div style="flex:2;text-align:center;font-size:12px;color:#16a34a;font-weight:700;padding:8px 0;">배포 완료 (${escapeText(item.time)})</div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div class="card-title">
+          <span>${escapeText(item.name)}</span>
+          <div class="badges">
+            <span class="badge-company">${escapeText(item.company || '기타')}</span>
+            ${badge}
+          </div>
+        </div>
+        <div class="card-address">📍 ${escapeText(item.address)}</div>
+        <div class="card-info">
+          <span>정원: ${item.cap}명 | 현원: <strong>${item.cur}명</strong></span>
+          ${distStr}
+        </div>
+        <div class="card-actions">${btns}</div>
+      `;
+      return card;
+    }
+
+    async function setStatus(id, newStatus) {
+      const item = allAgencies.find(x => String(x.id) === String(id));
+      if (!item) return alert('기관을 찾을 수 없습니다.');
+      if (item.status === '완료') return alert('이미 배포 완료된 기관입니다.');
+      if (newStatus === '완료' && !confirm(`'${item.name}' 배포를 완료하셨습니까?`)) return;
+      const nowStr = new Date().toLocaleString('ko-KR');
+      if (!firestoreDb) {
+        const from = item.status;
+        item.status = newStatus;
+        item.worker = newStatus === '대기' ? '' : activeUser;
+        item.time = newStatus === '대기' ? '' : nowStr;
+        saveAgencies(); updateDashboardCounters(); applyFilters(); runAiAgentPlanner();
+        syncMessage('⚠️ 로컬 저장만 완료 · 다른 직원에게 공유되지 않음');
+        return;
+      }
+      try {
+        const ref = firestoreDb.collection('distribution_status').doc(String(item.id));
+        await firestoreDb.runTransaction(async transaction => {
+          const snapshot = await transaction.get(ref);
+          const old = snapshot.exists ? snapshot.data() : {status:'대기',worker:''};
+          // 최신 서버 상태 검사: 다른 직원이 먼저 처리한 상태의 덮어쓰기 방지
+          if (old.status === '완료' && newStatus !== '완료') throw Error('이미 배포 완료된 기관은 되돌릴 수 없습니다.');
+          if (old.status === '배포중' && old.worker && old.worker !== activeUser) throw Error('다른 선생님이 배포 중입니다.');
+          if (old.status === '완료' && newStatus === '완료') throw Error('이미 배포 완료된 기관입니다.');
+          const next = {status:newStatus, worker:newStatus==='대기'?'':activeUser,time:newStatus==='대기'?'':nowStr, updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+          transaction.set(ref,next);
+          const auditRef=firestoreDb.collection('distribution_history').doc();
+          transaction.set(auditRef,{agencyId:String(item.id),name:item.name,worker:activeUser,from:old.status||'대기',to:newStatus,at:firebase.firestore.FieldValue.serverTimestamp()});
+        });
+      } catch(e) {
+        alert('상태 변경 실패: '+e.message);
+      }
+    }
+
+  </script>
+</body>
+</html>
